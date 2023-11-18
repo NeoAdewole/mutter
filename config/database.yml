@@ -81,5 +81,6 @@ test:
 #
 production:
   <<: *default
-  database: mutter_production
-  password: <%= ENV["MUTTER_DATABASE_PASSWORD"] %>
+  url: <%= ENV['DATAVASE_URL'] %>
+  # database: mutter_production
+  # password: <%= ENV["MUTTER_DATABASE_PASSWORD"] %>
