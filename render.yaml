@@ -1,7 +1,7 @@
 databases:
   - name: mutter
-    databaseName: mutter
-    user: mutter
+    databaseName: mutter_postgresql_render
+    user: mutter_postgresql_render_user
 
 services:
   - type: web
