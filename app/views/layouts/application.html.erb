@@ -15,8 +15,7 @@
     <%= render partial: "shared/navbar" %>
 
     <div class="container">
-      <div><%= notice %></div>
-      <div><%= alert %></div>
+      <div><%= render partial: "shared/flash" %></div>
       <%= yield %>
     </div>
   </body>
