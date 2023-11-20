@@ -7,23 +7,38 @@
     <% end %>
   <% end %>
 
-  <div>
-    <%= form.label :email %>
-    <%= form.email_field :email %>
+  <div class="col-auto mb-3">
+    <%= form.label :email, class: "form-label" %>
+    <%= form.email_field :email, class: "form-control", placeholder: "name@example.com" %>
   </div>
 
-  <div>
-    <%= form.label :password %>
-    <%= form.password_field :password %>
+  <div class="col-auto mb-3">
+    <%= form.label :firstname, class: "form-label" %>
+    <%= form.text_field :firstname, class: "form-control" %>
   </div>
 
-  <div>
-    <%= form.label :password_confirmation %>
-    <%= form.password_field :password_confirmation %>
+  <div class="col-auto mb-3">
+    <%= form.label :lastname, class: "form-label" %>
+    <%= form.text_field :lastname, class: "form-control" %>
   </div>
 
-  <div>
-    <%= form.submit "Sign Up" %>
+  <div class="col-auto mb-3">
+    <%= form.label :username, class: "form-label" %>
+    <%= form.text_field :username, class: "form-control" %>
+  </div>
+
+  <div class="col-auto mb-3">
+    <%= form.label :password, class: "form-label" %>
+    <%= form.password_field :password, class: "form-control", placeholder: "password" %>
+  </div>
+
+  <div class="col-auto mb-3">
+    <%= form.label :password_confirmation, class: "form-label" %>
+    <%= form.password_field :password_confirmation, class: "form-control", placeholder: "password" %>
+  </div>
+
+  <div class="col-auto">
+    <%= form.submit "Sign Up", class: "btn btn-primary mb-3" %>
   </div>
 
 <% end %>
