@@ -36,3 +36,4 @@
 
 # Ignore project notes
 Notes.md
+/config/credentials/development.key
