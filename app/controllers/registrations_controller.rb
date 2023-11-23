@@ -6,6 +6,7 @@ class RegistrationsController < ApplicationController
   def create
     @user = User.new(registration_params)
     if @user.save
+      RegistrationMailer.with(user: user).account_registered.deliver_now
       login @user
       redirect_to root_path, notice: "Account created successfully."
     else
