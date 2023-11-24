@@ -74,3 +74,6 @@ gem "redis", "~> 5.0"
 gem "sentry-ruby", "~> 5.13"
 
 gem "sentry-rails", "~> 5.13"
+
+gem "omniauth-twitter", "~> 1.4"
+gem "omniauth-rails_csrf_protection", "~> 1.0"
