@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   resource :password_reset
   resource :password
 
-  get "auth/twitter/callback", to: "omniauth_callbacks#twitter"
+  get "/auth/twitter/callback", to: "omniauth_callbacks#twitter"
 
   # Defines the root path route ("/")
   root "main#index"
