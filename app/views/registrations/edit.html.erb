@@ -1,0 +1,41 @@
+<h1>Update profile</h1>
+
+<%= form_with model: @user, url: registration_path do |form| %>
+  <%  if form.object.errors.any? %>
+    <div class="alert alert-danger">
+      <% form.object.errors.full_messages.each do |message| %>
+        <div><%= message %></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="col-auto mb-3">
+    <%= form.label :email, class: "form-label" %>
+    <%= form.email_field :email, class: "form-control", value: @user.email, :disabled => true %>
+  </div>
+
+  <div class="col-auto mb-3">
+    <%= form.label :firstname, class: "form-label" %>
+    <%= form.text_field :firstname, class: "form-control" %>
+  </div>
+
+  <div class="col-auto mb-3">
+    <%= form.label :lastname, class: "form-label" %>
+    <%= form.text_field :lastname, class: "form-control" %>
+  </div>
+
+  <div class="col-auto mb-3">
+    <%= form.label :username, class: "form-label" %>
+    <%= form.text_field :username, class: "form-control" %>
+  </div>
+
+  <div class="input-group mb3 justify-content-between">
+    <div class="col-auto">
+      <%= link_to "Cancel", :root, class: "btn btn-danger mb-3" %>
+    </div>
+    <div class="col-auto">
+      <%= form.submit "Save", class: "btn btn-primary mb-3" %>
+    </div>
+  </div>
+
+<% end %>

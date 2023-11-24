@@ -16,7 +16,7 @@
       <ul class="navbar-nav align-middle">
         <% if user_signed_in? %>
           <li class="nav-item">
-            <a class="nav-link"><%= Current.user.username %>:</a>
+            <%= link_to (Current.user.username || "Profile")+":", edit_registration_path, class: "nav-link" %>
           </li>
           <li class="nav-item">
             <%= link_to "Edit password", edit_password_path, class: "nav-link" %>
