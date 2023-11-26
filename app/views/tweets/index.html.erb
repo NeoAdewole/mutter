@@ -10,3 +10,5 @@
 <% if Current.user.twitter_accounts.none? %>
   <%= button_to "Connect a Twitter Account", "/auth/twitter", data:{turbo: "false"}, method: :post, class: "btn btn-primary" %>
 <% end %>
+
+<%= render @tweets %>
