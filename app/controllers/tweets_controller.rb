@@ -34,8 +34,11 @@ class TweetsController < ApplicationController
   end
 
   def destroy
-    @tweet.destroy
-    redirect_to tweets_path, notice: "Tweet was unscheduled"
+    if @tweet.destroy
+      redirect_to tweets_path, notice: "Tweet was unscheduled"
+    else
+      redirect_to tweets_path, alert: "Unable to remove schedule, please try again."
+    end
   end
 
   private
