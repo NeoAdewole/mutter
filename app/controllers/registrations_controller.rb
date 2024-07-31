@@ -30,6 +30,7 @@ class RegistrationsController < ApplicationController
   private
 
   def registration_params
+    # ToDo: Add user_id to users table
     params.require(:user).permit(:email, :firstname, :lastname, :username, :password, :password_confirmation)
   end
   
