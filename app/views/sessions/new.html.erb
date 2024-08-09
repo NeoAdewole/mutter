@@ -17,4 +17,16 @@
 
 <% end %>
 
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div class="col-auto">
+    <!-- callback http://localhost:3000/auth/github/callback -->
+    <%= button_to "Sign In with Github", "/auth/github", method: :post, data:{turbo: "false"}, class: "btn btn-secondary" %>
+  </div>
+  <div class="col-auto">
+    <!-- callback http://localhost:3000/auth/twitter/callback -->
+    <%= link_to "Sign In with Twitter", "/auth/twitter", data:{turbo: "false"}, class: "btn btn-secondary" %>
+  </div>
+</div>
+<hr>
+
 <%= link_to "Forgot your password?", new_password_reset_path %>

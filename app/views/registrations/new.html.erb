@@ -33,8 +33,19 @@
     <%= form.password_field :password_confirmation, class: "form-control", placeholder: "password" %>
   </div>
 
-  <div class="col-auto">
-    <%= form.submit "Sign Up", class: "btn btn-primary mb-3" %>
-  </div>
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="col-auto">
+      <%= form.submit "Sign Up", class: "btn btn-primary mb-3" %>
+    </div>
+    <div class="col-auto">
+      <!-- callback http://localhost:3000/auth/github/callback -->
+      <%= button_to "GitHub Sign Up", "/auth/github", method: :post, data:{turbo: "false"}, class: "btn btn-secondary" %>
+    </div>
+    <div class="col-auto">
+      <!-- callback http://localhost:3000/auth/twitter/callback -->
+      <%= link_to "Twitter Sign Up", "/auth/twitter", method: :post, data:{turbo: "false"}, class: "btn btn-secondary" %>
+    </div>
+    <hr>
+  </div>  
 
 <% end %>
