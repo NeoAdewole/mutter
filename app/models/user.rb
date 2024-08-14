@@ -5,8 +5,7 @@ class User < ApplicationRecord
   has_many :twitter_accounts
   has_many :tweets
 
-  validates :email, presence: true, format: { with: /\A[^@\s]+@[^@\s]+\z/, message: "Must be a valid email address." }
-  validates :email, uniqueness: true
+  validates :email, uniqueness: true, allow_nil: true
   normalizes :email, with: ->(email) {email.strip.downcase}
 
   generates_token_for :password_reset, expires_in: 15.minutes do
@@ -16,7 +15,7 @@ class User < ApplicationRecord
   # Method to find or create user from omniauth data
   def self.find_or_create_from_auth_hash(auth_hash)
     identity = Identity.find_or_create_by(provider: auth_hash.provider, uuid: auth_hash.uid)
-    
+    # TODO: Handle edge cases and saving a user from omni auth params
     if identity.user.present?
       identity.user
     else
