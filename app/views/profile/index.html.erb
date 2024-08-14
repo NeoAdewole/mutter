@@ -1,0 +1,7 @@
+<h1>Your Connected Accounts</h1>
+<% @identities.each do |identity| %>
+  <div>
+    <%= identity.provider %>
+    <%= link_to 'Remove', identity_path(identity), method: :delete, data: { confirm: 'Are you sure?' } %>
+  </div>
+<% end %>

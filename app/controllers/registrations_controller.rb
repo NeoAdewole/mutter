@@ -4,6 +4,7 @@ class RegistrationsController < ApplicationController
   end
 
   def create
+    auth_hash = request.env['omniauth.auth']
     @user = User.new(registration_params)
     if @user.save
       RegistrationMailer.with(user: @user).account_registered.deliver_now
@@ -30,11 +31,10 @@ class RegistrationsController < ApplicationController
   private
 
   def registration_params
-    # ToDo: Add user_id to users table
     params.require(:user).permit(:email, :firstname, :lastname, :username, :password, :password_confirmation)
   end
   
   def update_params
-    params.require(:user).permit(:firstname, :lastname, :username)
+    params.require(:user).permit(:email, :firstname, :lastname, :username)
   end
 end

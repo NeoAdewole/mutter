@@ -7,15 +7,14 @@ Rails.application.routes.draw do
 
   get "about", to: "about#index"
 
+  match "/auth/:provider/callback", to: "sessions#create", via: [:get, :post]
   get '/auth/failure', to: 'omniauth_callbacks#failure'
-  get '/auth/twitter/callback', to: 'sessions#create'
-  get '/auth/github/callback', to: 'sessions#create'
-
-  resources :twitter_accounts, only: [:index, :create, :destroy]
-  resources :tweets, only: [:index, :new, :create]
 
   resource :session
   resource :registration
+  resources :twitter_accounts, only: [:index, :create, :destroy]
+  resources :tweets, only: [:index, :new, :create]
+
   resource :password_reset
   resource :password
 

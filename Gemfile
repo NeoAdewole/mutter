@@ -77,8 +77,13 @@ gem "sentry-ruby", "~> 5.13"
 
 gem "sentry-rails", "~> 5.13"
 
+gem "typhoeus"
 gem "oauth2", '~> 1.4.9'
+gem "omniauth-rails_csrf_protection", "~> 1.0"
+gem 'omniauth-google-oauth2'
 gem "omniauth-twitter", "~> 1.4"
 gem "omniauth-twitter2", '~> 0.1.0'
+gem "omniauth-discord", '~> 0.1.0'
+gem "omniauth-twitch"
 gem "omniauth-github", github: 'omniauth/omniauth-github', branch: 'master'
-gem "omniauth-rails_csrf_protection", "~> 1.0"
+
