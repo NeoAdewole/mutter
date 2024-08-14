@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   resource :registration
   resources :twitter_accounts, only: [:index, :create, :destroy]
   resources :tweets, only: [:index, :new, :create]
+  resources :identities, only: [:destroy]
 
   resource :password_reset
   resource :password
