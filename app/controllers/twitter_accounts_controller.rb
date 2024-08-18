@@ -6,7 +6,8 @@ class TwitterAccountsController < ApplicationController
     @twitter_accounts = Current.user.twitter_accounts
   end
 
-  def destroy    
+  def destroy
+    @twitter_account = Current.user.twitter_accounts.find(params[:id]) 
     if @twitter_account.destroy
       redirect_to twitter_accounts_path, notice: "@#{@twitter_account.username} successfully disconnected"
     else

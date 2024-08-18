@@ -7,14 +7,17 @@ Rails.application.routes.draw do
 
   get "about", to: "about#index"
 
+  match "/auth/:provider/callback", to: "sessions#create", via: [:get, :post]
+  get '/auth/failure', to: 'omniauth_callbacks#failure'
+
   resource :session
   resource :registration
+  resources :twitter_accounts, only: [:index, :create, :destroy]
+  resources :tweets, only: [:index, :new, :create]
+  resources :identities, only: [:destroy]
+
   resource :password_reset
   resource :password
-
-  get "/auth/twitter/callback", to: "omniauth_callbacks#twitter"
-  resources :twitter_accounts
-  resources :tweets
 
   # Defines the root path route ("/")
   root "main#index"

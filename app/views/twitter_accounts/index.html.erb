@@ -1,8 +1,12 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
-  <h1>Twitter Accounts</h1>
-
-  <%= button_to "Connect a Twitter Account", "/auth/twitter", data:{turbo: "false"}, method: :post, class: "btn btn-primary" %>
+  <h1>External Accounts</h1>
+  <div class="col-auto">
+    <%= button_to "Connect Twitter", "twitter_accounts_path", data:{turbo: "false"}, method: :post, class: "btn btn-secondary" %>
+  </div>
   <hr>
+  <div class="col-auto">
+    <%= button_to "Connect Github", "/auth/github", method: :post, data:{turbo: "false"}, class: "btn btn-secondary" %>
+  </div>
 </div>
 
 <% @twitter_accounts.each do |twitter_account| %>

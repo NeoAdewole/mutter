@@ -1,9 +1,9 @@
 class RegistrationsController < ApplicationController
-  def new
-    @user = User.new
-  end
+  before_action :authenticate_user!
+  before_action :set_user_and_identities, only: [:edit, :update]
 
   def create
+    auth_hash = request.env['omniauth.auth']
     @user = User.new(registration_params)
     if @user.save
       RegistrationMailer.with(user: @user).account_registered.deliver_now
@@ -27,14 +27,25 @@ class RegistrationsController < ApplicationController
     end
   end
 
+  def destroy
+    @user = current_user
+    @user.destroy
+    session[:user_id] = nil
+    redirect_to root_path, notice: 'Account deleted successfully.'
+  end
+
   private
 
+  def set_user_and_identities
+    @user = current_user
+    @identities = @user.identities
+  end
+
   def registration_params
-    # ToDo: Add user_id to users table
     params.require(:user).permit(:email, :firstname, :lastname, :username, :password, :password_confirmation)
   end
   
   def update_params
-    params.require(:user).permit(:firstname, :lastname, :username)
+    params.require(:user).permit(:email, :firstname, :lastname, :username)
   end
 end
