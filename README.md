@@ -2,4 +2,4 @@
 
 A coworking community for content creators
 
-* Ruby version - 3.3.3
+* Ruby version - 3.2.2
