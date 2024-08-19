@@ -1,6 +1,6 @@
 class RegistrationsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_user_and_identities, only: [:edit, :update]
+  before_action :set_user_and_identities, only: %i[edit update]
 
   def create
     auth_hash = request.env['omniauth.auth']
@@ -8,12 +8,12 @@ class RegistrationsController < ApplicationController
     if @user.save
       RegistrationMailer.with(user: @user).account_registered.deliver_now
       login @user
-      redirect_to root_path, notice: "Account created successfully."
+      redirect_to root_path, notice: 'Account created successfully.'
     else
       render :new, status: :unprocessable_entity
     end
   end
-  
+
   def edit
     @user = current_user
   end
@@ -21,7 +21,7 @@ class RegistrationsController < ApplicationController
   def update
     @user = current_user
     if @user.update(update_params)
-      redirect_to root_path, notice: "Profile updated successfully."
+      redirect_to root_path, notice: 'Profile updated successfully.'
     else
       render :new, status: :unprocessable_entity
     end
@@ -44,7 +44,7 @@ class RegistrationsController < ApplicationController
   def registration_params
     params.require(:user).permit(:email, :firstname, :lastname, :username, :password, :password_confirmation)
   end
-  
+
   def update_params
     params.require(:user).permit(:email, :firstname, :lastname, :username)
   end

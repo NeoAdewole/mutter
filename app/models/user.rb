@@ -6,12 +6,12 @@ class User < ApplicationRecord
   has_many :tweets
 
   validates :email, uniqueness: true, allow_nil: true
-  normalizes :email, with: ->(email) {email.strip.downcase}
+  normalizes :email, with: ->(email) { email.strip.downcase }
 
   generates_token_for :password_reset, expires_in: 15.minutes do
     password_salt&.last(10)
   end
-  
+
   # Method to find or create user from omniauth data
   def self.find_or_create_from_auth_hash(auth_hash)
     identity = Identity.find_or_create_by(provider: auth_hash.provider, uuid: auth_hash.uid)
@@ -25,7 +25,7 @@ class User < ApplicationRecord
         user.password = SecureRandom.hex(15)
         user.save!
       end
-      identity.update(user: user)
+      identity.update(user:)
       user
     end
   end
@@ -34,5 +34,4 @@ class User < ApplicationRecord
   # generates_token_for :email_confirmation, expires_in: 24.hours do
   #   email
   # end
-
 end

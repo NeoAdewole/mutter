@@ -1,9 +1,9 @@
 class OmniauthCallbacksController < ApplicationController
   def twitter
     Rails.logger.info request.env['omniauth.auth'].to_yaml
-    logger.info "Check value of auth..."
+    logger.info 'Check value of auth...'
     Rails.logger.info auth.to_yaml
-    redirect_to about_path, notice: "Successfully connected your Twitter account."
+    redirect_to about_path, notice: 'Successfully connected your Twitter account.'
   end
 
   def failure
@@ -11,6 +11,7 @@ class OmniauthCallbacksController < ApplicationController
   end
 
   private
+
   # retieve a hash of credentials from api response
   def auth
     request.env['omniauth.auth']
