@@ -8,6 +8,8 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 User.create!([
-  {email: "matt@mutter.com", password_digest: "$2a$12$iHFu.P.pWEKpYJ9lNuDd1u.eRIXcdtzk7If.mr1Eqau7Ut6mJGHTi", firstname: "Matt", lastname: "Mutter", username: "MassMutter"},
-  {email: "test@tester.com", password_digest: "$2a$12$.09q0TaFul54FN1hOmM5JeJbrlKb4OnqFvhiWt6Yoy5R2IISCpW9K", firstname: "Testy", lastname: "Testington", username: "TryoutKings"}
-])
+               { email: 'matt@mutter.com', password_digest: '$2a$12$iHFu.P.pWEKpYJ9lNuDd1u.eRIXcdtzk7If.mr1Eqau7Ut6mJGHTi',
+                 firstname: 'Matt', lastname: 'Mutter', username: 'MassMutter' },
+               { email: 'test@tester.com', password_digest: '$2a$12$.09q0TaFul54FN1hOmM5JeJbrlKb4OnqFvhiWt6Yoy5R2IISCpW9K',
+                 firstname: 'Testy', lastname: 'Testington', username: 'TryoutKings' }
+             ])

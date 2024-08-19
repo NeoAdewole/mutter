@@ -3,7 +3,7 @@ class SessionsController < ApplicationController
   # def new
   # end
 
-  def create    
+  def create
     auth_hash = request.env['omniauth.auth']
     uid = auth_hash.uid
     provider = auth_hash.info['provider']
@@ -12,17 +12,17 @@ class SessionsController < ApplicationController
     if user.persisted?
       login user
       if user.email.blank?
-        redirect_to edit_registration_path, notice: "Please update your email address."
+        redirect_to edit_registration_path, notice: 'Please update your email address.'
       else
-        redirect_to about_path, notice: "Signed in!"
+        redirect_to about_path, notice: 'Signed in!'
       end
     else
-      redirect_to root_path, alert: "Failed to sign in!"
+      redirect_to root_path, alert: 'Failed to sign in!'
     end
   end
 
   def destroy
     logout current_user
-    redirect_to root_path, notice: "You have been logged out."
+    redirect_to root_path, notice: 'You have been logged out.'
   end
 end
