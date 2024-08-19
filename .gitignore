@@ -44,3 +44,5 @@ Notes.md
 # Vim swap files
 *.swp
 .*.swp
+
+.rspec
