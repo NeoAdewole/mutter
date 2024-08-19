@@ -7,6 +7,12 @@ GIT
       omniauth (~> 2.0)
       omniauth-oauth2 (~> 1.8)
 
+GIT
+  remote: https://github.com/ruby/net-pop.git
+  revision: e8d0afe2773b9eb6a23c39e9e437f6fc0fc7c733
+  specs:
+    net-pop (0.1.2)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -159,7 +165,6 @@ GEM
     net-imap (0.4.14)
       date
       net-protocol
-    net-pop (0.1.2)
     net-protocol (0.2.2)
       timeout
     net-smtp (0.5.0)
@@ -347,6 +352,7 @@ DEPENDENCIES
   dockerfile-rails (>= 1.5)
   importmap-rails
   jbuilder
+  net-pop!
   oauth2 (~> 1.4.9)
   omniauth-discord (~> 0.1.0)
   omniauth-github!
