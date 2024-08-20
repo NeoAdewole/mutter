@@ -37,6 +37,8 @@
 # Ignore project notes
 Notes.md
 /config/credentials/development.key
+/config/credentials/production.key
+/config/*.key
 
 # Ignore tool-versions from asdf
 .tool-versions
