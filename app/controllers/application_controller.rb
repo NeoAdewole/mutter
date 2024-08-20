@@ -1,16 +1,16 @@
 class ApplicationController < ActionController::Base
   before_action :set_current_user
-  
+
   def set_current_user
-    if session[:user_id]
-      Current.user = User.find_by(id: session[:user_id])
-    end
+    return unless session[:user_id]
+
+    Current.user = User.find_by(id: session[:user_id])
   end
 
   private
 
   def authenticate_user!
-    redirect_to new_session_path, alert: "You must be logged in to do that." unless user_signed_in?
+    redirect_to new_session_path, alert: 'You must be logged in to do that.' unless user_signed_in?
   end
 
   def current_user
@@ -27,14 +27,13 @@ class ApplicationController < ActionController::Base
   end
   helper_method :user_signed_in?
 
-
   def login(user)
     Current.user = user
     reset_session
     session[:user_id] = user.id
   end
 
-  def logout(user)
+  def logout(_user)
     Current.user = nil
     reset_session
   end

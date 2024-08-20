@@ -2,39 +2,53 @@
 
 <%= form_with model: @user, url: registration_path do |form| %>
   <%= render "shared/form_errors", form: form%>
-
   <div class="col-auto mb-3">
     <%= form.label :email, class: "form-label" %>
     <%= form.email_field :email, class: "form-control", placeholder: "name@example.com" %>
   </div>
-
   <div class="col-auto mb-3">
     <%= form.label :firstname, class: "form-label" %>
     <%= form.text_field :firstname, class: "form-control" %>
   </div>
-
   <div class="col-auto mb-3">
     <%= form.label :lastname, class: "form-label" %>
     <%= form.text_field :lastname, class: "form-control" %>
   </div>
-
   <div class="col-auto mb-3">
     <%= form.label :username, class: "form-label" %>
     <%= form.text_field :username, class: "form-control" %>
   </div>
-
   <div class="col-auto mb-3">
     <%= form.label :password, class: "form-label" %>
     <%= form.password_field :password, class: "form-control", placeholder: "password" %>
   </div>
-
   <div class="col-auto mb-3">
     <%= form.label :password_confirmation, class: "form-label" %>
     <%= form.password_field :password_confirmation, class: "form-control", placeholder: "password" %>
   </div>
-
   <div class="col-auto">
-    <%= form.submit "Sign Up", class: "btn btn-primary mb-3" %>
+    <%= form.submit "Register", class: "btn btn-primary mb-3" %>
   </div>
-
 <% end %>
+  
+  <hr>
+  <h2 class="">Sign Up With Identity Providers</h2>
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="col-auto">
+      <%= button_to "Sign Up With GitHub", "/auth/github", method: :post, data:{turbo: "false"}, class: "btn btn-secondary" %>
+    </div>
+    <div class="col-auto">
+      <%= button_to "Sign Up With Twitter", "/auth/twitter2", method: :post, data:{turbo: "false"}, class: "btn btn-secondary" %>
+    </div>
+    <div class="col-auto">
+      <%= button_to "Sign Up with Google", "/auth/google_oauth2", data:{"turbo-method": :post, turbo: "false"}, method: :post, class: "btn btn-secondary" %>
+    </div>
+    <div class="col-auto">
+      <%= button_to "Sign In with Twitch", "/auth/twitch", data:{"turbo-method": :post, turbo: "false"}, method: :post, class: "btn btn-secondary" %>
+    </div>
+    <div class="col-auto">
+      <%= button_to "Sign In with Discord", "/auth/discord", data:{"turbo-method": :post, turbo: "false"}, method: :post, class: "btn btn-secondary" %>
+    </div>
+  </div>  
+
+

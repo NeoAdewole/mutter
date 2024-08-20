@@ -6,12 +6,13 @@ class TwitterAccountsController < ApplicationController
     @twitter_accounts = Current.user.twitter_accounts
   end
 
-  def destroy    
+  def destroy
+    @twitter_account = Current.user.twitter_accounts.find(params[:id])
     if @twitter_account.destroy
       redirect_to twitter_accounts_path, notice: "@#{@twitter_account.username} successfully disconnected"
     else
-      redirect_to twitter_accounts_path, alert: "Something went wrong, please try again."
-    end      
+      redirect_to twitter_accounts_path, alert: 'Something went wrong, please try again.'
+    end
   end
 
   private
@@ -19,5 +20,4 @@ class TwitterAccountsController < ApplicationController
   def set_twitter_account
     @twitter_account = Current.user.twitter_accounts.find(params[:id])
   end
-
 end

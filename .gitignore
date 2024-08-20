@@ -40,3 +40,9 @@ Notes.md
 
 # Ignore tool-versions from asdf
 .tool-versions
+
+# Vim swap files
+*.swp
+.*.swp
+
+.rspec
