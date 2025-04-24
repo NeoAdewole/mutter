@@ -1,6 +1,13 @@
 <h1>Log in</h1>
 
 <%= form_with model: @user, url: session_path do |form| %>
+  <% if @user.errors.any? %>
+    <div class="error">
+        <% @user.errors.full_messages.each do |message| %>
+            - <%= message %></br>
+        <% end %>
+    </div>
+  <% end %>
   <div class="col-auto mb-3">
     <%= form.label :email, class: "form-label" %>
     <%= form.email_field :email, class: "form-control" %>
