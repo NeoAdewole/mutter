@@ -39,6 +39,7 @@
     <% @identities.each do |identity| %>
       <li>
         <%= identity.provider.capitalize %>
+        <%= identity %>
         <%= link_to "Disconnect", identity_path(identity), method: :delete, data: { confirm: "Are you sure you want to disconnect this account?" } %>
       </li>
     <% end %>
@@ -46,15 +47,5 @@
 <% else %>
   <p>No connected accounts.</p>
 <% end %>
-
-
-<h3>Connect New Accounts</h3>
-<ul>
-  <li><%= link_to "Connect GitHub", "/auth/github" %></li>
-  <li><%= link_to "Connect Google", "/auth/google_oauth2" %></li>
-  <li><%= link_to "Connect Twitter", "/auth/twitter" %></li>
-  <li><%= link_to "Connect Discord", "/auth/discord" %></li>
-  <li><%= link_to "Connect Twitch", "/auth/twitch" %></li>
-</ul>
 
 <%= button_to "Delete Account", registration_path, method: :delete, data: { confirm: "Are you sure you want to delete your account? This action cannot be undone." } %>
