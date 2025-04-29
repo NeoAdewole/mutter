@@ -1,5 +1,5 @@
 class RegistrationsController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, only: %i[edit update]
   before_action :set_user_and_identities, only: %i[edit update]
 
   def create

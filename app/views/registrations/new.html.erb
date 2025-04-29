@@ -1,7 +1,7 @@
 <h1> Sign Up</h1>
 
-<%= form_with model: @user, url: registration_path do |form| %>
-  <%= render "shared/form_errors", form: form%>
+<%= form_with model: @user || User.new, url: registration_path do |form| %>
+  <%= render "shared/form_errors", form: form %>
   <div class="col-auto mb-3">
     <%= form.label :email, class: "form-label" %>
     <%= form.email_field :email, class: "form-control", placeholder: "name@example.com" %>

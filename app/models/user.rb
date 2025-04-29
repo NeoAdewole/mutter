@@ -5,7 +5,13 @@ class User < ApplicationRecord
   has_many :twitter_accounts
   has_many :tweets
 
-  validates :email, uniqueness: true, allow_nil: true
+  validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :firstname, presence: true
+  validates :lastname, presence: true
+  validates :username, presence: true, uniqueness: true
+  validates :password, presence: true, length: { minimum: 6 }, on: :create
+  validates :password_confirmation, presence: true, on: :create
+
   normalizes :email, with: ->(email) { email.strip.downcase }
 
   generates_token_for :password_reset, expires_in: 15.minutes do
