@@ -5,35 +5,37 @@ class SessionsController < ApplicationController
     @user = User.new
   end
 
+  # Handles two types of authentication:
+  # 1. Email/Password authentication
+  # 2. OAuth provider authentication (e.g., Google, Facebook)
   def create
+    # Email/Password or Username/Password Authentication Flow
     if user_params
-      @user = User.find(user_params)
-      logger.info "User params: #{@user}"
-      if @user.authenticate(params[:password])
-        login(@user)
-        redirect_to edit_registration_path, notice: 'Please update your email address.'
+      # Try to find user by email first, then by username
+      email_search = User.find_by(email: params[:user][:email])
+      username_search = User.find_by(username: params[:user][:email])
+      @user = email_search || username_search
+
+      if @user
+        submitted_password = params[:user][:password]        
+                
+        if @user.authenticate(submitted_password)
+          login(@user)
+          redirect_to about_path, notice: 'Signed in!'
+        else
+          redirect_to new_session_path, alert: 'Invalid email/username or password.'
+        end
       else
-        logger.info "Password mismatch for user: #{@user.email}"
-        redirect_to new_session_path, alert: 'Invalid email or password.'
+        redirect_to new_session_path, alert: 'Invalid email/username or password.'
       end
     end
 
+    # OAuth Provider Authentication Flow
     if request.env['omniauth.auth']
-      logger.info "Auth hash: #{auth_hash}"
-      # if @user.persisted?
-      #   logger.info "User logged in: #{@user.email}"
-      #   redirect_to about_path, notice: 'Logged in successfully.'
-      # else
-      #   logger.info "Failed to log in: #{@user.errors.full_messages}"
-      #   redirect_to root_path, alert: 'Failed to log in.'
-      # end
       auth_hash = request.env['omniauth.auth']
-      logger.info "auth hash entered: #{auth_hash}"
-      # logger.info "Recieving this from client: #{auth_hash}"
-      uid = auth_hash.uid
-      provider = auth_hash.info['provider']
-      email = auth_hash.info['email']
+      
       user = User.find_or_create_from_auth_hash(auth_hash)
+      
       if user.persisted?
         login(user)
         if user.email.blank?
@@ -47,13 +49,14 @@ class SessionsController < ApplicationController
     end
   end
 
+  # Handles user logout
   def destroy
     logout current_user
     redirect_to root_path, notice: 'You have been logged out.'
   end
 
+  # Strong parameters for email/password authentication
   def user_params
-    params.require(:user).permit(:email, :password)
-    logger.info "Credentials entered: #{params[:email]}"
+    params.require(:user).permit(:email, :username, :password)
   end
 end
