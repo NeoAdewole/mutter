@@ -48,3 +48,6 @@ Notes.md
 .*.swp
 
 .rspec
+
+/app/assets/builds/*
+!/app/assets/builds/.keep
