@@ -34,8 +34,10 @@
           </ul>
         </div>
       <% else %>
-        <li class="nav-item px-2"><%= link_to "Sign Up", new_registration_path, class: "nav-link" %></li>
-        <li class="nav-item px-2"><%= link_to "Log In", new_session_path, class: "nav-link" %></li>
+        <ul class="menu menu-horizontal rounded-box">
+          <li><%= link_to "Sign Up", new_registration_path, class: "nav-link" %></li>
+          <li><%= link_to "Log In", new_session_path, class: "nav-link" %></li>
+        </ul>
       <% end %>
     </div>
   </div>
