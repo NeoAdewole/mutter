@@ -1,15 +1,17 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Fixtures for User model tests.
+# Field names corrected to match schema: firstname, lastname, username.
+# password_digest generated via BCrypt for use in authentication tests.
 
-one:
-  email: MyString
-  password_digest: MyString
-  Firstname: MyString
-  Lastname: MyString
-  Alias: MyString
+alice:
+  email: alice@example.com
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  firstname: Alice
+  lastname: Smith
+  username: alice_smith
 
-two:
-  email: MyString
-  password_digest: MyString
-  Firstname: MyString
-  Lastname: MyString
-  Alias: MyString
+bob:
+  email: bob@example.com
+  password_digest: <%= BCrypt::Password.create('password456') %>
+  firstname: Bob
+  lastname: Jones
+  username: bob_jones

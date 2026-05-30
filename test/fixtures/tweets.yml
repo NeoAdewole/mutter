@@ -1,15 +1,6 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  user: one
-  twitter_account: one
-  body: MyText
-  publish_at: 2023-11-24 12:14:04
-  tweet_id: MyString
-
-two:
-  user: two
-  twitter_account: two
-  body: MyText
-  publish_at: 2023-11-24 12:14:04
-  tweet_id: MyString
+alice_scheduled_tweet:
+  user: alice
+  twitter_account: alice_twitter
+  body: Hello from Mutter!
+  publish_at: 2099-01-01 12:00:00
+  tweet_id:
