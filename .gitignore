@@ -36,6 +36,7 @@
 
 # Ignore project notes
 Notes.md
+system_design.md
 /config/credentials/development.key
 /config/credentials/production.key
 /config/*.key
