@@ -1,9 +1,8 @@
 require 'test_helper'
 
-# Tests for email/password login, username login, logout, and OAuth sign-in.
 class SessionsControllerTest < ActionDispatch::IntegrationTest
   # ---------------------------------------------------------------------------
-  # Email / Password login (SessionsController#create — password path)
+  # Email / Password login
   # ---------------------------------------------------------------------------
 
   test "GET /session/new renders login form" do
@@ -20,7 +19,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   test "login with valid username redirects and sets session" do
     alice = users(:alice)
-    # The sessions controller accepts username in the :email param field
     post session_path, params: { user: { email: alice.username, password: 'password123' } }
     assert_redirected_to about_path
     assert_equal alice.id, session[:user_id]
@@ -48,7 +46,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # ---------------------------------------------------------------------------
-  # Logout (SessionsController#destroy)
+  # Logout
   # ---------------------------------------------------------------------------
 
   test "logout clears session and redirects to root" do
@@ -63,16 +61,10 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # ---------------------------------------------------------------------------
-  # OAuth login (SessionsController#create — OmniAuth path)
-  #
-  # BUG DOCUMENTED: SessionsController#create handles both email/password and
-  # OAuth in the same action. The first line of the action calls `user_params`,
-  # which calls `params.require(:user)`. OAuth callbacks carry no :user params,
-  # so this raises ActionController::ParameterMissing (Rails returns 400) before
-  # the OAuth code path is ever reached.
+  # OAuth login
   # ---------------------------------------------------------------------------
 
-  test "oauth callback returns 400 because user_params crashes before oauth code runs" do
+  test "oauth callback with existing identity signs in user" do
     alice = users(:alice)
     identity = identities(:alice_github)
 
@@ -83,25 +75,30 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     )
 
     post '/auth/github'
-    follow_redirect! # follows 302 from OmniAuth to /auth/github/callback → sessions#create
+    follow_redirect!
 
-    # params.require(:user) raises ParameterMissing → Rails returns 400
-    # OAuth sign-in never executes; user is not logged in
-    assert_nil session[:user_id], "OAuth login should have signed in the user but crashes before the OAuth code path"
+    assert_equal alice.id, session[:user_id]
+    assert_redirected_to about_path
   end
 
-  # BUG DOCUMENTED: Even if the ParameterMissing issue were fixed, new OAuth users
-  # would fail because find_or_create_from_auth_hash does not set firstname or
-  # lastname, which are required validations — raising ActiveRecord::RecordInvalid.
-  test "find_or_create_from_auth_hash raises for brand-new oauth user (missing firstname/lastname)" do
-    auth = mock_auth_hash(
+  test "oauth creates a new user with firstname and lastname from provider name" do
+    OmniAuth.config.mock_auth[:github] = mock_auth_hash(
       provider: 'github',
       uid: 'brand_new_uid_oauth',
       email: 'brandnewoauth@example.com',
-      nickname: 'brandnewperson'
+      nickname: 'brandnewperson',
+      name: 'Brand New'
     )
-    assert_raises(ActiveRecord::RecordInvalid) do
-      User.find_or_create_from_auth_hash(auth)
+
+    assert_difference 'User.count', 1 do
+      post '/auth/github'
+      follow_redirect!
     end
+
+    new_user = User.find_by(email: 'brandnewoauth@example.com')
+    assert_not_nil new_user
+    assert_equal 'Brand', new_user.firstname
+    assert_equal 'New', new_user.lastname
+    assert_equal session[:user_id], new_user.id
   end
 end

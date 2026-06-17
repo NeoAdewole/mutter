@@ -38,6 +38,7 @@
 Notes.md
 system_design.md
 test.md
+bugs_fixed.md
 /config/credentials/development.key
 /config/credentials/production.key
 /config/*.key

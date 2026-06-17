@@ -1,11 +1,8 @@
 require 'test_helper'
 
-# Tests for the forgot-password / reset-password flow.
-# The app generates tokens with User#signed_id (not generates_token_for),
-# so tests must do the same to match what the mailer and controller expect.
 class PasswordResetsControllerTest < ActionDispatch::IntegrationTest
   # ---------------------------------------------------------------------------
-  # Request reset email (PasswordResetsController#create)
+  # Request reset email
   # ---------------------------------------------------------------------------
 
   test "GET /password_reset/new renders forgot-password form" do
@@ -30,9 +27,7 @@ class PasswordResetsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # ---------------------------------------------------------------------------
-  # Reset password form (PasswordResetsController#edit / #update)
-  # The controller uses User.find_signed!(token, purpose: 'password_reset')
-  # so tests generate tokens the same way the mailer does: user.signed_id(...)
+  # Reset password form
   # ---------------------------------------------------------------------------
 
   test "GET /password_reset/edit with valid token renders reset form" do
@@ -72,9 +67,7 @@ class PasswordResetsControllerTest < ActionDispatch::IntegrationTest
     assert alice.reload.authenticate('password123'), "Original password should be unchanged"
   end
 
-  # BUG DOCUMENTED: The password minimum-length validation only applies on :create,
-  # so password resets do not enforce the 6-character minimum.
-  test "password too short is accepted on reset (known validation gap)" do
+  test "password too short is rejected on reset" do
     alice = users(:alice)
     token = reset_token_for(alice)
 
@@ -82,15 +75,11 @@ class PasswordResetsControllerTest < ActionDispatch::IntegrationTest
       token: token,
       user: { password: '123', password_confirmation: '123' }
     }
-    # Expect unprocessable_entity, but the update currently succeeds
-    # because `validates :password, length: { minimum: 6 }, on: :create` only runs on create.
-    assert_not_equal 200, response.status, "Short passwords should be rejected on reset — validation gap on :create scope"
+    assert_response :unprocessable_entity
+    assert alice.reload.authenticate('password123'), "Original password should be unchanged"
   end
 
-  # BUG DOCUMENTED: After a successful password reset, pre-existing sessions are
-  # not invalidated. The reset token IS invalidated (salt rotates) but any live
-  # session[:user_id] cookie remains valid.
-  test "existing session persists after password reset (known security gap)" do
+  test "session is cleared after successful password reset" do
     alice = users(:alice)
     post session_path, params: { user: { email: alice.email, password: 'password123' } }
     assert_equal alice.id, session[:user_id]
@@ -101,13 +90,11 @@ class PasswordResetsControllerTest < ActionDispatch::IntegrationTest
       user: { password: 'brandnewpass', password_confirmation: 'brandnewpass' }
     }
 
-    assert_equal alice.id, session[:user_id],
-      "Session is not cleared after password reset — pre-existing sessions should be invalidated"
+    assert_nil session[:user_id], "Session should be cleared after password reset"
   end
 
   private
 
-  # Mirrors how PasswordMailer generates the token.
   def reset_token_for(user)
     user.signed_id(purpose: 'password_reset', expires_in: 15.minutes)
   end

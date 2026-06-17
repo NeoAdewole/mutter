@@ -1,5 +1,5 @@
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :developer if Rails.env.develpment?
+  provider :developer if Rails.env.development?
   provider :twitter2,
            Rails.application.credentials.dig(:twitter, :client_id),
            Rails.application.credentials.dig(:twitter, :client_secret),

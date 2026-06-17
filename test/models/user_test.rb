@@ -54,7 +54,7 @@ class UserTest < ActiveSupport::TestCase
       password: 'pass123', password_confirmation: 'pass123'
     )
     assert_not duplicate.valid?
-    assert user_error_on?(duplicate, :email)
+    assert duplicate.errors[:email].present?
   end
 
   test "email is normalized to lowercase" do
@@ -73,13 +73,21 @@ class UserTest < ActiveSupport::TestCase
       password: 'pass123', password_confirmation: 'pass123'
     )
     assert_not duplicate.valid?
-    assert user_error_on?(duplicate, :username)
+    assert duplicate.errors[:username].present?
   end
 
   test "password must be at least 6 characters on create" do
     user = User.new(email: 'a@example.com', firstname: 'J', lastname: 'D', username: 'jd_short', password: '123', password_confirmation: '123')
     assert_not user.valid?
     assert user.errors[:password].present?
+  end
+
+  test "password minimum length is enforced on update too" do
+    alice = users(:alice)
+    alice.password = '123'
+    alice.password_confirmation = '123'
+    assert_not alice.valid?
+    assert alice.errors[:password].present?
   end
 
   test "password confirmation must match on create" do
@@ -92,13 +100,11 @@ class UserTest < ActiveSupport::TestCase
   # ---------------------------------------------------------------------------
 
   test "authenticate returns user with correct password" do
-    user = users(:alice)
-    assert user.authenticate('password123')
+    assert users(:alice).authenticate('password123')
   end
 
   test "authenticate returns false with wrong password" do
-    user = users(:alice)
-    assert_equal false, user.authenticate('wrongpassword')
+    assert_equal false, users(:alice).authenticate('wrongpassword')
   end
 
   # ---------------------------------------------------------------------------
@@ -106,51 +112,40 @@ class UserTest < ActiveSupport::TestCase
   # ---------------------------------------------------------------------------
 
   test "generates and finds password reset token" do
-    user = users(:alice)
-    token = user.generate_token_for(:password_reset)
-    found = User.find_by_token_for(:password_reset, token)
-    assert_equal user, found
+    alice = users(:alice)
+    token = alice.generate_token_for(:password_reset)
+    assert_equal alice, User.find_by_token_for(:password_reset, token)
   end
 
   # ---------------------------------------------------------------------------
   # OAuth: find_or_create_from_auth_hash
   # ---------------------------------------------------------------------------
 
-  test "find_or_create_from_auth_hash returns existing user when identity matches" do
+  test "returns existing user when identity matches" do
     alice = users(:alice)
     identity = identities(:alice_github)
-
     auth = mock_auth_hash(provider: identity.provider, uid: identity.uuid, email: alice.email)
-    result = User.find_or_create_from_auth_hash(auth)
-    assert_equal alice, result
+    assert_equal alice, User.find_or_create_from_auth_hash(auth)
   end
 
-  test "find_or_create_from_auth_hash finds existing user by email when identity is new" do
+  test "finds existing user by email when identity is new" do
     alice = users(:alice)
     auth = mock_auth_hash(provider: 'discord', uid: 'new_discord_uid', email: alice.email)
-    result = User.find_or_create_from_auth_hash(auth)
-    assert_equal alice, result
+    assert_equal alice, User.find_or_create_from_auth_hash(auth)
   end
 
-  # BUG DOCUMENTED: OAuth user creation fails because firstname and lastname are
-  # required by User validations but are never set in find_or_create_from_auth_hash.
-  # New OAuth users with no existing account will raise ActiveRecord::RecordInvalid.
-  test "find_or_create_from_auth_hash raises when creating brand-new user (missing firstname/lastname)" do
+  test "creates brand-new user with firstname and lastname from provider name" do
     auth = mock_auth_hash(
       provider: 'github',
       uid: 'brand_new_uid_999',
       email: 'brandnew@example.com',
-      nickname: 'brandnewuser'
+      nickname: 'brandnewuser',
+      name: 'Brand New'
     )
-    assert_raises(ActiveRecord::RecordInvalid) do
-      User.find_or_create_from_auth_hash(auth)
+    assert_difference 'User.count', 1 do
+      user = User.find_or_create_from_auth_hash(auth)
+      assert_equal 'Brand', user.firstname
+      assert_equal 'New', user.lastname
     end
-  end
-
-  private
-
-  def user_error_on?(user, field)
-    user.valid?
-    user.errors[field].present?
   end
 end

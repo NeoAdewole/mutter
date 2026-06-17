@@ -1,5 +1,5 @@
 class RegistrationsController < ApplicationController
-  before_action :authenticate_user!, only: %i[edit update]
+  before_action :authenticate_user!, only: %i[edit update destroy]
   before_action :set_user_and_identities, only: %i[edit update]
 
   def create
@@ -30,7 +30,7 @@ class RegistrationsController < ApplicationController
   def destroy
     @user = current_user
     @user.destroy
-    session[:user_id] = nil
+    reset_session
     redirect_to root_path, notice: 'Account deleted successfully.'
   end
 
