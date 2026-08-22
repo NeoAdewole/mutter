@@ -22,6 +22,7 @@ default: &default
 development:
   <<: *default
   username: postgres
+  host: 127.0.0.1
   port: 5432
   database: mutter_dev
 
@@ -58,6 +59,8 @@ development:
 test:
   <<: *default
   username: postgres
+  host: 127.0.0.1
+  port: 5432
   database: mutter_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
