@@ -72,6 +72,12 @@ group :test do
   gem 'capybara'
   gem 'rspec-rails', '~> 6.0.0'
   gem 'selenium-webdriver'
+  gem 'shoulda-matchers', '~> 6.0'
+end
+
+group :development, :test do
+  gem 'factory_bot_rails'
+  gem 'faker'
 end
 
 gem 'dockerfile-rails', '>= 1.5', group: :development

@@ -131,6 +131,13 @@ GEM
     ethon (0.18.0)
       ffi (>= 1.15.0)
       logger
+    factory_bot (6.6.0)
+      activesupport (>= 6.1.0)
+    factory_bot_rails (6.5.1)
+      factory_bot (~> 6.5)
+      railties (>= 6.1.0)
+    faker (3.8.0)
+      i18n (>= 1.8.11, < 2)
     faraday (2.14.3)
       faraday-net_http (>= 2.0, < 3.5)
       json
@@ -393,6 +400,8 @@ GEM
     sentry-ruby (5.28.1)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
+    shoulda-matchers (6.5.0)
+      activesupport (>= 5.2.0)
     snaky_hash (2.0.7)
       hashie (>= 0.1.0, < 6)
       version_gem (~> 1.1, >= 1.1.14)
@@ -463,6 +472,8 @@ DEPENDENCIES
   capybara
   debug
   dockerfile-rails (>= 1.5)
+  factory_bot_rails
+  faker
   importmap-rails
   jbuilder
   net-pop!
@@ -484,6 +495,7 @@ DEPENDENCIES
   selenium-webdriver
   sentry-rails (~> 5.13)
   sentry-ruby (~> 5.13)
+  shoulda-matchers (~> 6.0)
   sprockets-rails
   stimulus-rails
   tailwindcss-rails (~> 4.2)
