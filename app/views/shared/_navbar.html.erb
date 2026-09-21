@@ -29,7 +29,7 @@
             tabindex="0"
             class="dropdown-content menu menu-sm bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
             <li class="X-nav-item X-px-2"><%= link_to (Current.user.username || "Profile"), edit_registration_path, class: "justify between" %></li>
-            <li class="X-nav-item X-px-2"><%= link_to "Change password", edit_password_path, class: "nav-link" %></li>
+            <li class="X-nav-item X-px-2"><%= link_to (Current.user.password_set? ? "Change password" : "Add password"), edit_password_path, class: "nav-link" %></li>
             <li class="X-nav-item X-px-2"><%= button_to "Log out", session_path, method: :delete, class: "btn btn-danger"%></li>
           </ul>
         </div>

@@ -64,5 +64,33 @@ RSpec.describe User, type: :model do
 
       expect(described_class.find_or_create_from_auth_hash(auth_hash)).to eq(first_user)
     end
+
+    it 'marks a newly created OAuth user as not having a real password set' do
+      user = described_class.find_or_create_from_auth_hash(auth_hash)
+      expect(user.password_set).to be false
+    end
+
+    it 'links a new identity to an existing password-registered account with the same email, leaving password_set untouched' do
+      existing = create(:user, email: 'oauth-user@example.com', password_set: true)
+
+      user = described_class.find_or_create_from_auth_hash(auth_hash)
+
+      expect(user).to eq(existing)
+      expect(user.password_set).to be true
+    end
+
+    it 'does not reset password_set on repeat OAuth sign-ins' do
+      user = described_class.find_or_create_from_auth_hash(auth_hash)
+      user.update!(password_set: true, password: 'realpassword', password_confirmation: 'realpassword')
+
+      returning_user = described_class.find_or_create_from_auth_hash(auth_hash)
+      expect(returning_user.password_set).to be true
+    end
+  end
+
+  describe 'password_set default' do
+    it 'defaults to true for a normally registered user' do
+      expect(create(:user).password_set).to be true
+    end
   end
 end

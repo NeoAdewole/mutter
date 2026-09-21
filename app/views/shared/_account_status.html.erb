@@ -1,0 +1,6 @@
+<% if user_signed_in? && !current_user.password_set? %>
+  <div class="alert alert-warning mt-4" role="alert">
+    You signed in with an identity provider and haven't set a password yet.
+    <%= link_to "Add a password", edit_password_path %> so you can also log in with your email.
+  </div>
+<% end %>

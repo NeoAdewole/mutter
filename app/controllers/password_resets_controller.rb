@@ -1,19 +1,9 @@
 class PasswordResetsController < ApplicationController
-  # before_action :set_user_by_token, only: [:edit, :update]
-
   def new; end
 
   def create
     @user = User.find_by(email: params[:email])
-    # if (@user = User.find_by(email: params[:email]))
-    if @user.present?
-      PasswordMailer.with(user: @user).password_reset.deliver_now
-      # PasswordMailer.with(
-      #   user: @user,
-      #   token: @user.generate_token_for(:password_reset)
-      # ).password_reset.deliver_later
-      # binding.irb
-    end
+    PasswordMailer.with(user: @user).password_reset.deliver_now if @user.present?
 
     redirect_to root_path, notice: 'Check your email to reset your password.'
   end
@@ -36,12 +26,11 @@ class PasswordResetsController < ApplicationController
 
   private
 
-  # def set_user_by_token
-  #   @user = User.find_by_token_for(:password_reset, params[:token])
-  #   redirect_to new_password_reset_path alert: "Invalid token, please try again." unless @user.present?
-  # end
-
   def password_params
-    params.require(:user).permit(:password, :password_confirmation)
+    # Successfully resetting a password (proven by the signed emailed token)
+    # counts as establishing a real password, same as registering with one or
+    # adding one from the account page -- including for an OAuth-only account
+    # that never had one.
+    params.require(:user).permit(:password, :password_confirmation).with_defaults(password_set: true)
   end
 end

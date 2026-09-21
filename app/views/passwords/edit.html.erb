@@ -1,15 +1,26 @@
-<h1>Update Password</h1>
+<% adding_password = !current_user.password_set? %>
+
+<h1><%= adding_password ? "Add a Password" : "Change Password" %></h1>
+
+<% if adding_password %>
+  <p>
+    Your account doesn't have a password you know yet (you signed up with an identity provider).
+    Add one below so you can also log in with your email and a password.
+  </p>
+<% end %>
 
 <%= form_with model: current_user, url: password_path do |form| %>
   <%= render "shared/form_errors", form: form%>
 
-  <div class="col-auto mb-3">
-    <%= form.label :password_challenge, "Current Password", class: "form-label" %>
-    <%= form.password_field :password_challenge, class: "form-control"  %>
-  </div>
+  <% unless adding_password %>
+    <div class="col-auto mb-3">
+      <%= form.label :password_challenge, "Current Password", class: "form-label" %>
+      <%= form.password_field :password_challenge, class: "form-control"  %>
+    </div>
+  <% end %>
 
   <div class="col-auto mb-3">
-    <%= form.label :password, "New Password", class: "form-label" %>
+    <%= form.label :password, adding_password ? "Password" : "New Password", class: "form-label" %>
     <%= form.password_field :password, class: "form-control"  %>
   </div>
 
@@ -19,7 +30,7 @@
   </div>
 
   <div class="col-auto mb-3">
-    <%= form.submit "Update password", class: "btn btn-primary mb-3" %>
+    <%= form.submit (adding_password ? "Add password" : "Update password"), class: "btn btn-primary mb-3" %>
   </div>
 
 <% end %>

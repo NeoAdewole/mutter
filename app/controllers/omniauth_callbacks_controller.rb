@@ -6,8 +6,13 @@ class OmniauthCallbacksController < ApplicationController
     redirect_to about_path, notice: 'Successfully connected your Twitter account.'
   end
 
+  # Shared failure handler for every provider (github, google, discord,
+  # twitch, twitter2, developer) -- OmniAuth routes any strategy failure here
+  # regardless of which one was being used.
   def failure
-    redirect_to twitter_accounts_path, alert: 'Failed to connect your Twitter account'
+    reason = params[:message].presence&.humanize || 'please try again'
+    destination = user_signed_in? ? edit_registration_path : new_session_path
+    redirect_to destination, alert: "Authentication failed: #{reason}."
   end
 
   private

@@ -50,7 +50,8 @@ bugs_fixed.md
 *.swp
 .*.swp
 
-.rspec
-
 /app/assets/builds/*
 !/app/assets/builds/.keep
+
+# Stray log files left behind by running the dev server inside a local tmux session.
+tmux-*.log

@@ -1,5 +1,7 @@
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :developer if Rails.env.development?
+  # The developer strategy has no external credentials, so it's also what
+  # request specs use to exercise the OAuth sign-up/log-in flow end to end.
+  provider :developer if Rails.env.local?
   provider :twitter2,
            Rails.application.credentials.dig(:twitter, :client_id),
            Rails.application.credentials.dig(:twitter, :client_secret),

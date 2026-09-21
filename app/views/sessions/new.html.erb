@@ -23,22 +23,5 @@
 <% end %>
 
 <hr>
-<h2 class="">Use Identity Providers</h2>
-<div class="d-flex align-items-center justify-content-between my-4">
-  <div class="col-auto">
-    <%= button_to "Sign In with Github", "/auth/github", method: :post, data:{turbo: "false"}, class: "btn btn-secondary" %>
-  </div>
-  <div class="col-auto">
-    <%= button_to "Sign In with Twitter", "/auth/twitter2", data:{"turbo-method": :post, turbo: "false"}, method: :post, class: "btn btn-secondary" %>
-  </div>
-  <div class="col-auto">
-    <%= button_to "Sign In with Google", "/auth/google_oauth2", data:{"turbo-method": :post, turbo: "false"}, method: :post, class: "btn btn-secondary" %>
-  </div>
-  <div class="col-auto">
-    <%= button_to "Sign In with Twitch", "/auth/twitch", data:{"turbo-method": :post, turbo: "false"}, method: :post, class: "btn btn-secondary" %>
-  </div>
-  <div class="col-auto">
-    <%= button_to "Sign In with Discord", "/auth/discord", data:{"turbo-method": :post, turbo: "false"}, method: :post, class: "btn btn-secondary" %>
-  </div>
-</div>
+<%= render "shared/identity_providers", verb: "Sign In" %>
 

@@ -48,4 +48,18 @@
   <p>No connected accounts.</p>
 <% end %>
 
+<% connected_provider_keys = @identities.map(&:provider) %>
+<% connectable_providers = identity_providers.reject { |provider| connected_provider_keys.include?(provider[:key]) } %>
+<% if connectable_providers.any? %>
+  <h2>Connect another provider</h2>
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 my-4">
+    <% connectable_providers.each do |provider| %>
+      <div class="col-auto">
+        <%= button_to "Connect #{provider[:label]}", "/auth/#{provider[:key]}?connect=true",
+                       method: :post, data: { turbo: 'false' }, class: 'btn btn-secondary' %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
 <%= button_to "Delete Account", registration_path, method: :delete, data: { confirm: "Are you sure you want to delete your account? This action cannot be undone." } %>
