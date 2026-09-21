@@ -1,7 +1,0 @@
-alice_twitter:
-  user: alice
-  name: Alice Smith
-  username: alicesmith_tw
-  image: https://example.com/alice.png
-  token: alice_token_abc
-  secret: alice_secret_xyz

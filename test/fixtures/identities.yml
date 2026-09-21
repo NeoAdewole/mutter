@@ -1,7 +1,0 @@
-# Fixtures for Identity model tests.
-# 'uuid' is the provider's unique user identifier (was incorrectly 'id' before).
-
-alice_github:
-  user: alice
-  provider: github
-  uuid: uid_github_alice_001
