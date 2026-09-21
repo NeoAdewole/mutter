@@ -39,7 +39,7 @@
     <% @identities.each do |identity| %>
       <li>
         <%= identity.provider.capitalize %>
-        <%= identity %>
+        connected <%= identity.created_at.strftime("%b %-d, %Y") %>
         <%= link_to "Disconnect", identity_path(identity), method: :delete, data: { confirm: "Are you sure you want to disconnect this account?" } %>
       </li>
     <% end %>

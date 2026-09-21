@@ -69,5 +69,17 @@ RSpec.describe 'Connecting an identity provider to an existing, logged-in accoun
       expect(response.body).to include('/auth/google_oauth2?connect=true')
       expect(response.body).not_to include('/auth/github?connect=true')
     end
+
+    it 'describes each connected account meaningfully instead of printing the raw object' do
+      user = create(:user)
+      identity = create(:identity, user: user, provider: 'github', uuid: 'gh-1', created_at: Time.zone.local(2026, 1, 5))
+      post session_path, params: { user: { email: user.email, password: 'password123' } }
+
+      get edit_registration_path
+
+      expect(response.body).not_to match(/#&lt;Identity/)
+      expect(response.body).not_to include(identity.to_s)
+      expect(response.body).to match(/Jan(?:uary)? 5,? 2026/)
+    end
   end
 end
