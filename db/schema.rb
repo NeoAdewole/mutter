@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 20_261_111_144_911) do
+ActiveRecord::Schema[7.2].define(version: 20_261_111_160_100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
@@ -22,6 +22,22 @@ ActiveRecord::Schema[7.2].define(version: 20_261_111_144_911) do
     t.datetime 'updated_at', null: false
     t.string 'username'
     t.index ['user_id'], name: 'index_identities_on_user_id'
+  end
+
+  create_table 'pages', force: :cascade do |t|
+    t.string 'section', null: false
+    t.bigint 'parent_id'
+    t.string 'title', null: false
+    t.string 'slug', null: false
+    t.text 'body', default: '', null: false
+    t.integer 'position', default: 0, null: false
+    t.boolean 'published', default: false, null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['parent_id'], name: 'index_pages_on_parent_id'
+    t.index %w[section parent_id position], name: 'index_pages_on_ordering'
+    t.index %w[section parent_id slug], name: 'index_pages_on_siblings_slug', unique: true
+    t.index %w[section slug], name: 'index_pages_on_top_level_slug', unique: true, where: '(parent_id IS NULL)'
   end
 
   create_table 'tweets', force: :cascade do |t|
@@ -58,9 +74,11 @@ ActiveRecord::Schema[7.2].define(version: 20_261_111_144_911) do
     t.datetime 'updated_at', null: false
     t.boolean 'password_set', default: true, null: false
     t.boolean 'show_stream_on_homepage', default: true, null: false
+    t.boolean 'admin', default: false, null: false
   end
 
   add_foreign_key 'identities', 'users'
+  add_foreign_key 'pages', 'pages', column: 'parent_id'
   add_foreign_key 'tweets', 'twitter_accounts'
   add_foreign_key 'tweets', 'users'
   add_foreign_key 'twitter_accounts', 'users'
