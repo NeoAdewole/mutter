@@ -6,7 +6,8 @@ Rails.application.routes.draw do
   get 'up' => 'rails/health#show', as: :rails_health_check
 
   get 'about', to: 'about#index'
-  get 'streaming', to: 'streaming#show'
+  # The live chat used to be /streaming; /streaming is now the Streaming section's landing page.
+  get 'streaming/live-chat', to: 'streaming#show', as: :live_chat
 
   match '/auth/:provider/callback', to: 'sessions#create', via: %i[get post]
   get '/auth/failure', to: 'omniauth_callbacks#failure'
@@ -19,6 +20,23 @@ Rails.application.routes.draw do
 
   resource :password_reset
   resource :password
+
+  namespace :admin do
+    root to: 'pages#index'
+    resources :pages, except: :show do
+      member do
+        patch :publish
+        patch :unpublish
+        patch :move
+      end
+    end
+  end
+
+  # CMS content. Keep these after every fixed route above: they claim
+  # /streaming, /content, /gaming, /community and everything beneath them.
+  section_key = Regexp.union(%w[streaming content gaming community])
+  get ':section', to: 'sections#show', as: :section, constraints: { section: section_key }
+  get ':section/*path', to: 'pages#show', as: :cms_page, format: false, constraints: { section: section_key }
 
   # Defines the root path route ("/")
   root 'main#index'

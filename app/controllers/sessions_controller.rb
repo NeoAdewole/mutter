@@ -88,6 +88,6 @@ class SessionsController < ApplicationController
   # Pages that offer a Connect button can ask to be returned to (?return=streaming).
   # Only these known destinations are honored, so the param can't be an open redirect.
   def connection_return_path
-    { 'streaming' => streaming_path }.fetch(request.env['omniauth.params'].to_h['return'], edit_registration_path)
+    { 'streaming' => live_chat_path }.fetch(request.env['omniauth.params'].to_h['return'], edit_registration_path)
   end
 end

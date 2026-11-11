@@ -1,0 +1,17 @@
+<div class="my-6 max-w-3xl">
+  <h1 class="text-3xl font-bold"><%= @section.title %></h1>
+  <p class="mt-2 text-base-content/70"><%= @section.blurb %></p>
+
+  <% if admin_signed_in? %>
+    <%= link_to "Add a page to #{@section.title}", new_admin_page_path(section: @section.key), class: "btn btn-sm btn-outline mt-3" %>
+  <% end %>
+
+  <div data-section-pages class="mt-6">
+    <ul class="menu w-full rounded-box bg-base-200" aria-label="<%= @section.title %> pages">
+      <%= render "shared/nav_items", section: @section %>
+    </ul>
+    <% if @nodes.empty? %>
+      <p class="mt-4 text-sm text-base-content/70">No pages have been published here yet.</p>
+    <% end %>
+  </div>
+</div>

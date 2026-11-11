@@ -1,0 +1,5 @@
+<%# The menu entries beneath one section: its built-in features, then its published pages. %>
+<% built_in_links(section).each do |label, path| %>
+  <li><%= nav_link label, path %></li>
+<% end %>
+<%= render partial: "shared/nav_node", collection: site_navigation.fetch(section.key), as: :node %>

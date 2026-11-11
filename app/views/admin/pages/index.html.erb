@@ -1,0 +1,84 @@
+<div class="my-6">
+  <h1 class="text-3xl font-bold">Pages</h1>
+  <p class="mt-1 text-sm text-base-content/70">
+    Manage the pages in each section. Drafts are only visible to admins; publish a page to put it in the menu.
+  </p>
+
+  <% @rows_by_section.each do |section, rows| %>
+    <section class="mt-8" aria-labelledby="section-<%= section.key %>">
+      <div class="flex flex-wrap items-center gap-2">
+        <h2 id="section-<%= section.key %>" class="text-xl font-semibold"><%= section.title %></h2>
+        <%= link_to "View section", section.path, class: "btn btn-xs btn-ghost" %>
+        <%= link_to "Add page", new_admin_page_path(section: section.key), class: "btn btn-xs btn-primary", aria: { label: "Add page to #{section.title}" } %>
+      </div>
+
+      <% if section.built_ins.any? %>
+        <p class="mt-1 text-xs text-base-content/70">
+          Built in (not editable here): <%= section.built_ins.map(&:label).to_sentence %>.
+        </p>
+      <% end %>
+
+      <% if rows.empty? %>
+        <p class="mt-2 text-sm text-base-content/70">No pages yet.</p>
+      <% else %>
+        <div class="mt-2 overflow-x-auto">
+          <table class="table table-sm">
+            <caption class="sr-only"><%= section.title %> pages</caption>
+            <thead>
+              <tr>
+                <th scope="col">Page</th>
+                <th scope="col" class="hidden tablet:table-cell">Status</th>
+                <th scope="col" class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% rows.each do |row| %>
+                <% page = row.page %>
+                <tr data-page-id="<%= page.id %>" data-status="<%= page.published? ? "published" : "draft" %>">
+                  <td class="<%= { 1 => "pl-2", 2 => "pl-8", 3 => "pl-14" }.fetch(row.depth, "pl-14") %>">
+                    <%= link_to page.title, page.public_path, data: { title: true }, class: "link link-hover font-medium" %>
+                    <span class="block break-all text-xs text-base-content/60"><%= page.public_path %></span>
+                    <%# On phones the status column is hidden to save width, so repeat it here. %>
+                    <span class="mt-1 badge badge-sm tablet:hidden <%= page.published? ? "badge-success" : "badge-warning" %>"><%= page.published? ? "Published" : "Draft" %></span>
+                  </td>
+                  <td class="hidden tablet:table-cell">
+                    <% if page.published? %>
+                      <span class="badge badge-success badge-sm">Published</span>
+                    <% else %>
+                      <span class="badge badge-warning badge-sm">Draft</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <div class="flex max-w-40 flex-wrap items-center justify-end gap-1 tablet:max-w-none ml-auto">
+                      <% unless row.first_sibling %>
+                        <%= form_with url: move_admin_page_path(page), method: :patch, class: "inline" do %>
+                          <button type="submit" name="direction" value="up" class="btn btn-xs btn-ghost" aria-label="Move <%= page.title %> up">&uarr;</button>
+                        <% end %>
+                      <% end %>
+                      <% unless row.last_sibling %>
+                        <%= form_with url: move_admin_page_path(page), method: :patch, class: "inline" do %>
+                          <button type="submit" name="direction" value="down" class="btn btn-xs btn-ghost" aria-label="Move <%= page.title %> down">&darr;</button>
+                        <% end %>
+                      <% end %>
+                      <%= link_to "Edit", edit_admin_page_path(page), class: "btn btn-xs btn-outline", aria: { label: "Edit #{page.title}" } %>
+                      <% if page.published? %>
+                        <%= button_to "Unpublish", unpublish_admin_page_path(page), method: :patch, class: "btn btn-xs btn-outline",
+                                      form: { class: "inline" }, aria: { label: "Unpublish #{page.title}" } %>
+                      <% else %>
+                        <%= button_to "Publish", publish_admin_page_path(page), method: :patch, class: "btn btn-xs btn-success",
+                                      form: { class: "inline" }, aria: { label: "Publish #{page.title}" } %>
+                      <% end %>
+                      <%= button_to "Delete", admin_page_path(page), method: :delete, class: "btn btn-xs btn-error btn-outline",
+                                    form: { class: "inline", data: { turbo_confirm: "Delete “#{page.title}”? This can't be undone." } },
+                                    aria: { label: "Delete #{page.title}" } %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </section>
+  <% end %>
+</div>

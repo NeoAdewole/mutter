@@ -1,11 +1,10 @@
 <%
   nav_links = [
     ["Home", root_path],
-    ["About", about_path],
-    ["Twitter Accounts", twitter_accounts_path],
-    ["Tweets", tweets_path],
-    ["Streaming", streaming_path]
+    ["About", about_path]
   ]
+  # Streaming / Content / Gaming / Community follow, each with a menu of its
+  # built-in features and published pages (see Section and Page.navigation).
 %>
 <div class="container mx-auto px-4">
   <%# Below the laptop breakpoint the links move into a slide-out drawer (CSS only, no JS). %>
@@ -13,7 +12,7 @@
     <input id="nav-drawer" type="checkbox" class="drawer-toggle" />
 
     <div class="drawer-content">
-      <nav class="navbar bg-base-300 rounded-lg mb-2" id="main-nav">
+      <nav class="navbar bg-base-300 rounded-lg mb-2" id="main-nav" aria-label="Main">
         <div class="navbar-start gap-1">
           <label for="nav-drawer" aria-label="Open menu" class="btn btn-square btn-ghost laptop:hidden">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-6 w-6 stroke-current">
@@ -26,7 +25,25 @@
         <div class="navbar-center hidden laptop:flex">
           <ul class="menu menu-horizontal gap-1">
             <% nav_links.each do |label, path| %>
-              <li><%= link_to label, path, class: ("menu-active" if current_page?(path)) %></li>
+              <li><%= nav_link label, path %></li>
+            <% end %>
+            <% Section.all.each do |section| %>
+              <% if section_has_items?(section) %>
+                <%# The section name is a real link to its landing page; its menu opens on hover and on keyboard focus (no JS). %>
+                <li class="relative group">
+                  <%= nav_link section.title, section.path %>
+                  <ul
+                    aria-label="<%= section.title %> pages"
+                    class="absolute left-0 top-full z-20 hidden w-60 gap-1 rounded-box bg-base-100 p-2 shadow group-hover:block group-focus-within:block">
+                    <%= render "shared/nav_items", section: section %>
+                  </ul>
+                </li>
+              <% else %>
+                <li><%= nav_link section.title, section.path %></li>
+              <% end %>
+            <% end %>
+            <% if admin_signed_in? %>
+              <li><%= nav_link "Admin", admin_root_path %></li>
             <% end %>
           </ul>
         </div>
@@ -67,7 +84,20 @@
           <%= link_to "Mutter", root_path, class: "text-xl font-bold" %>
         </li>
         <% nav_links.each do |label, path| %>
-          <li><%= link_to label, path, class: ("menu-active" if current_page?(path)) %></li>
+          <li><%= nav_link label, path %></li>
+        <% end %>
+        <% Section.all.each do |section| %>
+          <li>
+            <%= nav_link section.title, section.path %>
+            <% if section_has_items?(section) %>
+              <ul aria-label="<%= section.title %> pages">
+                <%= render "shared/nav_items", section: section %>
+              </ul>
+            <% end %>
+          </li>
+        <% end %>
+        <% if admin_signed_in? %>
+          <li><%= nav_link "Admin", admin_root_path %></li>
         <% end %>
         <% unless user_signed_in? %>
           <li class="menu-title mt-4">Account</li>

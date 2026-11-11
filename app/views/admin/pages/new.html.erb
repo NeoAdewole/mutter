@@ -1,0 +1,5 @@
+<div class="my-6">
+  <%= link_to "← All pages", admin_pages_path, class: "link link-hover text-sm" %>
+  <h1 class="mt-2 text-3xl font-bold">New <%= @page.section_info&.title %> page</h1>
+  <%= render "form", page: @page, parent_choices: Page.parent_choices(@page) %>
+</div>

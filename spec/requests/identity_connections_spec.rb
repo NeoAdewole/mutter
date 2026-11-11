@@ -45,7 +45,7 @@ RSpec.describe 'Connecting an identity provider to an existing, logged-in accoun
     post session_path, params: { user: { email: user.email, password: 'password123' } }
 
     start_connect_flow(uid: 'dev-uid-return', return_to: 'streaming')
-    expect(response).to redirect_to(streaming_path)
+    expect(response).to redirect_to(live_chat_path)
 
     start_connect_flow(uid: 'dev-uid-return-2', return_to: 'https://evil.example')
     expect(response).to redirect_to(edit_registration_path)

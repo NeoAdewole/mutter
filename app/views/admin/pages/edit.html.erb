@@ -1,0 +1,10 @@
+<div class="my-6">
+  <%= link_to "← All pages", admin_pages_path, class: "link link-hover text-sm" %>
+  <h1 class="mt-2 text-3xl font-bold">Edit page</h1>
+  <p class="mt-1 text-sm text-base-content/70">
+    <%= @page.section_info.title %> ·
+    <%# Use the saved record: after a failed save @page holds unsaved edits. %>
+    <%= link_to "View#{' (draft preview)' unless Page.find(@page.id).published?}", Page.find(@page.id).public_path, class: "link" %>
+  </p>
+  <%= render "form", page: @page, parent_choices: Page.parent_choices(@page) %>
+</div>

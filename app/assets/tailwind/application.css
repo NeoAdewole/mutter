@@ -19,3 +19,26 @@
   --breakpoint-laptop: 64rem;
   --breakpoint-desktop: 80rem;
 }
+
+/* Rendered Markdown from the CMS (see MarkdownRenderer). Tailwind resets element
+   styles, so give the few elements Markdown produces sensible defaults. */
+@layer components {
+  .cms-body { @apply leading-relaxed; }
+  .cms-body > * + * { @apply mt-4; }
+  .cms-body h1 { @apply text-3xl font-bold; }
+  .cms-body h2 { @apply text-2xl font-semibold mt-8; }
+  .cms-body h3 { @apply text-xl font-semibold mt-6; }
+  .cms-body h4, .cms-body h5, .cms-body h6 { @apply font-semibold; }
+  .cms-body ul { @apply list-disc pl-6; }
+  .cms-body ol { @apply list-decimal pl-6; }
+  .cms-body a { @apply text-primary underline; }
+  .cms-body blockquote { @apply border-l-4 border-base-content/30 pl-4 italic; }
+  .cms-body code { @apply rounded bg-base-300 px-1 font-mono text-sm; }
+  .cms-body pre { @apply overflow-x-auto rounded-lg bg-base-300 p-3; }
+  .cms-body pre code { @apply bg-transparent p-0; }
+  .cms-body img { @apply h-auto max-w-full rounded-lg; }
+  .cms-body hr { @apply border-base-content/20; }
+  .cms-body table { @apply w-full border-collapse text-left; }
+  .cms-body th, .cms-body td { @apply border border-base-content/20 px-3 py-1; }
+  .cms-body th { @apply bg-base-300; }
+}

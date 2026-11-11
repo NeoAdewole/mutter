@@ -27,6 +27,16 @@ class ApplicationController < ActionController::Base
   end
   helper_method :user_signed_in?
 
+  def admin_signed_in?
+    current_user&.admin? || false
+  end
+  helper_method :admin_signed_in?
+
+  # Same plain 404 for "no such page" and "not allowed to know it exists".
+  def render_not_found
+    render file: Rails.public_path.join('404.html'), status: :not_found, layout: false
+  end
+
   def login(user)
     Current.user = user
     reset_session

@@ -12,7 +12,7 @@ RSpec.describe 'Streaming page', type: :request do
   end
 
   it 'requires being signed in' do
-    get streaming_path
+    get live_chat_path
     expect(response).to redirect_to(new_session_path)
   end
 
@@ -20,7 +20,7 @@ RSpec.describe 'Streaming page', type: :request do
     before do
       create(:identity, user: user, provider: 'twitch', uuid: 'tw-1', username: 'mychannel')
       sign_in
-      get streaming_path
+      get live_chat_path
     end
 
     it 'renders one chat feed wired to the Stimulus controller, configured with the connected channels' do
@@ -48,7 +48,7 @@ RSpec.describe 'Streaming page', type: :request do
     before do
       create(:identity, user: user, provider: 'github', uuid: 'gh-1', username: 'coder')
       sign_in
-      get streaming_path
+      get live_chat_path
     end
 
     it 'explains there is nothing to show yet and offers to connect Twitch, returning here afterwards' do
@@ -66,7 +66,7 @@ RSpec.describe 'Streaming page', type: :request do
     before do
       create(:identity, user: user, provider: 'twitch', uuid: 'tw-old', username: nil)
       sign_in
-      get streaming_path
+      get live_chat_path
     end
 
     it 'asks the user to reconnect once so the channel can be linked, rather than showing an empty chat' do
@@ -80,7 +80,7 @@ RSpec.describe 'Streaming page', type: :request do
     create(:identity, user: user, provider: 'twitch', uuid: 'tw-old-1', username: nil)
     create(:identity, user: user, provider: 'twitch', uuid: 'tw-old-2', username: nil)
     sign_in
-    get streaming_path
+    get live_chat_path
 
     expect(page.css('form[action="/auth/twitch?connect=true&return=streaming"]').size).to eq(1)
   end
@@ -88,6 +88,6 @@ RSpec.describe 'Streaming page', type: :request do
   it 'is linked from the navigation' do
     sign_in
     get root_path
-    expect(page.css('a[href="/streaming"]')).not_to be_empty
+    expect(page.css('a[href="/streaming/live-chat"]')).not_to be_empty
   end
 end

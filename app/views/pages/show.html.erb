@@ -1,0 +1,41 @@
+<div class="my-6 max-w-3xl">
+  <nav aria-label="Breadcrumb" class="breadcrumbs text-sm">
+    <ul>
+      <li><%= link_to @section.title, @section.path %></li>
+      <% @page.ancestors.each do |ancestor| %>
+        <li><%= link_to ancestor.title, ancestor.public_path %></li>
+      <% end %>
+      <li><span aria-current="page"><%= @page.title %></span></li>
+    </ul>
+  </nav>
+
+  <% if @draft_preview %>
+    <div data-draft-notice class="alert alert-warning my-3" role="status">
+      <span>
+        <strong>Draft preview.</strong>
+        <%= @page.published? ? "This page is published, but a page above it is still a draft," : "This page is a draft," %>
+        so only admins can see it.
+      </span>
+    </div>
+  <% end %>
+
+  <article>
+    <h1 class="text-3xl font-bold"><%= @page.title %></h1>
+    <% if admin_signed_in? %>
+      <%= link_to "Edit this page", edit_admin_page_path(@page), class: "btn btn-sm btn-outline mt-3" %>
+    <% end %>
+
+    <div class="cms-body mt-6"><%= @page.rendered_body %></div>
+  </article>
+
+  <% if @sub_pages.any? %>
+    <section data-sub-pages class="mt-8" aria-labelledby="sub-pages-heading">
+      <h2 id="sub-pages-heading" class="text-xl font-semibold">In this section</h2>
+      <ul class="menu mt-2 w-full rounded-box bg-base-200">
+        <% @sub_pages.each do |sub_page| %>
+          <li><%= link_to sub_page.title, sub_page.public_path %></li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>

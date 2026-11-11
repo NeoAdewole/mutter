@@ -1,0 +1,63 @@
+<%= form_with model: [:admin, page], class: "mt-4 flex max-w-3xl flex-col gap-4" do |form| %>
+  <% if page.errors.any? %>
+    <div class="alert alert-error" role="alert" data-form-errors>
+      <div>
+        <p class="font-semibold">This page couldn't be saved:</p>
+        <ul class="list-disc pl-5">
+          <% page.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <% if page.new_record? %>
+    <%= form.hidden_field :section %>
+  <% end %>
+
+  <div>
+    <%= form.label :title, class: "label font-medium" %>
+    <%= form.text_field :title, class: "input input-bordered w-full", required: true, maxlength: 200 %>
+  </div>
+
+  <div>
+    <%= form.label :slug, "URL name", class: "label font-medium" %>
+    <%= form.text_field :slug, class: "input input-bordered w-full font-mono", aria: { describedby: "slug-help" }, placeholder: "generated from the title" %>
+    <p id="slug-help" class="mt-1 text-xs text-base-content/70">
+      Lowercase letters, numbers and hyphens. Leave blank to generate it from the title.
+      Changing it later changes the page's address.
+    </p>
+  </div>
+
+  <div>
+    <%= form.label :parent_id, "Sits beneath", class: "label font-medium" %>
+    <%= form.select :parent_id,
+                    options_for_select(parent_choices.map { |row| [("— " * (row.depth - 1)) + row.page.title, row.page.id] }, page.parent_id),
+                    { include_blank: "#{page.section_info&.title} (top level)" },
+                    class: "select select-bordered w-full" %>
+  </div>
+
+  <div>
+    <%= form.label :body, "Content (Markdown)", class: "label font-medium" %>
+    <%= form.text_area :body, rows: 18, class: "textarea textarea-bordered w-full font-mono text-sm", aria: { describedby: "body-help" } %>
+    <p id="body-help" class="mt-1 text-xs text-base-content/70">
+      Markdown: <code>## Heading</code>, <code>**bold**</code>, <code>*italic*</code>, <code>[link](https://…)</code>,
+      <code>![alt](https://…/image.png)</code>, lists, tables and code blocks. The page title is already the main heading,
+      so start with <code>##</code>. Raw HTML, scripts and styles are removed for safety.
+    </p>
+  </div>
+
+  <div class="form-control">
+    <label class="label cursor-pointer justify-start gap-3">
+      <%= form.check_box :published, class: "checkbox" %>
+      <span>Published (visible to everyone)</span>
+    </label>
+    <p class="text-xs text-base-content/70">Leave unticked to keep it as a draft that only admins can preview.</p>
+  </div>
+
+  <div class="flex gap-2">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", admin_pages_path, class: "btn btn-ghost" %>
+  </div>
+<% end %>

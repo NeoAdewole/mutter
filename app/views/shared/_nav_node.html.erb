@@ -1,0 +1,8 @@
+<li>
+  <%= nav_link node.page.title, node.page.public_path %>
+  <% if node.children.any? %>
+    <ul aria-label="<%= node.page.title %> sub pages">
+      <%= render partial: "shared/nav_node", collection: node.children, as: :node %>
+    </ul>
+  <% end %>
+</li>
