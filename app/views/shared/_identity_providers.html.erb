@@ -1,6 +1,6 @@
 <h2 class=""><%= verb %> With Identity Providers</h2>
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 my-4">
-  <% identity_providers.each do |provider| %>
+  <% sign_in_providers.each do |provider| %>
     <div class="col-auto">
       <%= button_to "#{verb} with #{provider[:label]}", "/auth/#{provider[:key]}",
                      method: :post, data: { turbo: 'false' }, class: 'btn btn-secondary' %>

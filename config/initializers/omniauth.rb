@@ -16,6 +16,19 @@ Rails.application.config.middleware.use OmniAuth::Builder do
            Rails.application.credentials.dig(:google, :client_id),
            Rails.application.credentials.dig(:google, :client_secret)
 
+  # YouTube is Google OAuth again (same client), registered under its own name so
+  # it is a separate connection from "Sign in with Google": it additionally asks for
+  # read-only access to the person's channel (to learn their channel handle, which
+  # Google sign-in never provides) and is connect-only (see Identity::CONNECT_ONLY_PROVIDERS).
+  # Google Cloud Console needs /auth/youtube/callback added as an authorized redirect URI,
+  # and the YouTube Data API v3 enabled for the project.
+  provider OmniAuth::Strategies::GoogleOauth2,
+           Rails.application.credentials.dig(:google, :client_id),
+           Rails.application.credentials.dig(:google, :client_secret),
+           name: 'youtube',
+           scope: 'email,profile,https://www.googleapis.com/auth/youtube.readonly',
+           prompt: 'select_account' # the channel belongs to a specific Google account; let them pick it
+
   provider :discord,
            Rails.application.credentials.dig(:discord, :client_id),
            Rails.application.credentials.dig(:discord, :client_secret),

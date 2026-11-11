@@ -50,6 +50,22 @@ RSpec.describe 'Registrations (sign up)', type: :request do
       expect(response.body).to include('Email')
     end
 
+    it 'rejects a username that only differs by case from an existing one' do
+      create(:user, username: 'BevyBabble')
+
+      expect do
+        post registration_path, params: {
+          user: {
+            email: 'someone.else@example.com', firstname: 'Some', lastname: 'One',
+            username: 'bevybabble', password: 'pass123', password_confirmation: 'pass123'
+          }
+        }
+      end.not_to change(User, :count)
+
+      expect(response).to have_http_status(422)
+      expect(response.body).to include('Username')
+    end
+
     it 're-renders with errors when passwords do not match' do
       post registration_path, params: {
         user: {

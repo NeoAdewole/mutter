@@ -17,7 +17,7 @@ RSpec.describe User, type: :model do
     it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
 
     it { is_expected.to validate_presence_of(:username) }
-    it { is_expected.to validate_uniqueness_of(:username) }
+    it { is_expected.to validate_uniqueness_of(:username).case_insensitive }
 
     it { is_expected.to validate_presence_of(:password_confirmation) }
     it { is_expected.to validate_length_of(:password).is_at_least(6) }
@@ -63,6 +63,56 @@ RSpec.describe User, type: :model do
       end.not_to change(described_class, :count)
 
       expect(described_class.find_or_create_from_auth_hash(auth_hash)).to eq(first_user)
+    end
+
+    describe 'when the provider handle is already someone else\'s Mutter username' do
+      # Provider handles only have to be unique within their own service, but the
+      # Mutter username is one namespace for everyone, so different people can clash.
+      it 'signs the new person up under a free variant instead of failing, keeping the real handle on the identity' do
+        create(:user, username: 'oauthuser')
+
+        user = described_class.find_or_create_from_auth_hash(auth_hash)
+
+        expect(user).to be_persisted
+        expect(user.username).to eq('oauthuser2')
+        expect(user.identities.sole.username).to eq('oauthuser')
+      end
+
+      it 'treats usernames case-insensitively' do
+        create(:user, username: 'OAuthUser')
+
+        expect(described_class.find_or_create_from_auth_hash(auth_hash).username).to eq('oauthuser2')
+      end
+
+      it 'keeps counting until it finds a free one' do
+        %w[oauthuser oauthuser2 oauthuser3].each { |name| create(:user, username: name) }
+
+        expect(described_class.find_or_create_from_auth_hash(auth_hash).username).to eq('oauthuser4')
+      end
+
+      it 'uses the handle as-is when nobody has it' do
+        expect(described_class.find_or_create_from_auth_hash(auth_hash).username).to eq('oauthuser')
+      end
+
+      it 'does not touch the account of someone who signs in again with the same identity' do
+        first = described_class.find_or_create_from_auth_hash(auth_hash)
+        create(:user, username: 'oauthuser3') # a later clash must not rename the existing user
+
+        expect(described_class.find_or_create_from_auth_hash(auth_hash)).to eq(first)
+        expect(first.reload.username).to eq('oauthuser')
+      end
+    end
+
+    it 'still signs up when the provider gives neither a nickname nor a name, using the email name' do
+      bare = OmniAuth::AuthHash.new(
+        provider: 'github', uid: 'uid-bare',
+        info: OmniAuth::AuthHash::InfoHash.new(email: 'quiet.person@example.com')
+      )
+
+      user = described_class.find_or_create_from_auth_hash(bare)
+
+      expect(user).to be_persisted
+      expect(user).to have_attributes(username: 'quiet.person', firstname: 'quiet.person', lastname: 'quiet.person')
     end
 
     it "records the provider's handle (e.g. a Twitch login) on the identity at first sign-in" do

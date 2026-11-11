@@ -34,6 +34,8 @@ class SessionsController < ApplicationController
 
   def handle_omniauth_login
     auth = request.env['omniauth.auth']
+    return refuse_connect_only_login(auth) if Identity::CONNECT_ONLY_PROVIDERS.include?(auth.provider.to_s)
+
     user = User.find_or_create_from_auth_hash(auth)
 
     unless user.persisted?
@@ -43,7 +45,7 @@ class SessionsController < ApplicationController
 
     newly_created = user.previously_new_record?
     login(user)
-    provider_name = auth.provider.to_s.titleize
+    provider_name = Identity.label_for(auth.provider)
 
     if auth.info.email.blank?
       redirect_to edit_registration_path,
@@ -68,17 +70,25 @@ class SessionsController < ApplicationController
     end
 
     auth = request.env['omniauth.auth']
-    provider_name = auth.provider.to_s.titleize
+    provider_name = Identity.label_for(auth.provider)
 
     case current_user.connect_identity_from_auth_hash(auth)
     when :connected
-      redirect_to connection_return_path, notice: "Connected your #{provider_name} account. You can sign in with it too now."
+      sign_in_note = Identity::CONNECT_ONLY_PROVIDERS.include?(auth.provider.to_s) ? '' : ' You can sign in with it too now.'
+      redirect_to connection_return_path, notice: "Connected your #{provider_name} account.#{sign_in_note}"
     when :already_connected
       redirect_to connection_return_path, notice: "Your #{provider_name} account is already connected."
     when :conflict
       redirect_to connection_return_path,
                   alert: "That #{provider_name} account is already connected to a different Mutter account."
     end
+  end
+
+  # YouTube (and any other connect-only provider) must never create or log in an account.
+  def refuse_connect_only_login(auth)
+    redirect_to new_session_path,
+                alert: "#{Identity.label_for(auth.provider)} can only be connected to an account you're already signed in to. " \
+                       'Sign in first, then connect it from your profile page.'
   end
 
   def connecting_provider?
