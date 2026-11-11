@@ -22,6 +22,9 @@ Metrics/AbcSize:
 # AllowedMethods: refine
 Metrics/BlockLength:
   Max: 73
+  # RSpec describe blocks grow with coverage; the generic block-length cop isn't meaningful for them.
+  Exclude:
+    - 'spec/**/*'
 
 # Offense count: 2
 # Configuration parameters: AllowedMethods, AllowedPatterns.
