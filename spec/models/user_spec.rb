@@ -65,6 +65,24 @@ RSpec.describe User, type: :model do
       expect(described_class.find_or_create_from_auth_hash(auth_hash)).to eq(first_user)
     end
 
+    it "records the provider's handle (e.g. a Twitch login) on the identity at first sign-in" do
+      user = described_class.find_or_create_from_auth_hash(auth_hash)
+      expect(user.identities.sole.username).to eq('oauthuser')
+    end
+
+    it 'backfills and refreshes the handle on later sign-ins, including for an identity created before it was stored' do
+      user = described_class.find_or_create_from_auth_hash(auth_hash)
+      identity = user.identities.sole
+      identity.update!(username: nil)
+
+      described_class.find_or_create_from_auth_hash(auth_hash)
+      expect(identity.reload.username).to eq('oauthuser')
+
+      renamed = OmniAuth::AuthHash.new(auth_hash.to_hash.merge('info' => auth_hash.info.to_hash.merge('nickname' => 'renameduser')))
+      described_class.find_or_create_from_auth_hash(renamed)
+      expect(identity.reload.username).to eq('renameduser')
+    end
+
     it 'marks a newly created OAuth user as not having a real password set' do
       user = described_class.find_or_create_from_auth_hash(auth_hash)
       expect(user.password_set).to be false

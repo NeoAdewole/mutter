@@ -20,6 +20,26 @@ RSpec.describe 'Connecting an identity provider to an existing, logged-in accoun
     expect(flash[:notice]).to match(/connected/i).and match(/developer/i)
   end
 
+  it "records the provider's handle on a newly connected identity" do
+    user = create(:user)
+    post session_path, params: { user: { email: user.email, password: 'password123' } }
+
+    start_connect_flow(uid: 'dev-uid-handle', nickname: 'mychannel')
+
+    expect(user.identities.sole.username).to eq('mychannel')
+  end
+
+  it 'refreshes the handle when re-connecting an identity linked before handles were stored' do
+    user = create(:user)
+    identity = create(:identity, user: user, provider: 'developer', uuid: 'dev-uid-old', username: nil)
+    post session_path, params: { user: { email: user.email, password: 'password123' } }
+
+    start_connect_flow(uid: 'dev-uid-old', nickname: 'backfilled')
+
+    expect(identity.reload.username).to eq('backfilled')
+    expect(flash[:notice]).to match(/already connected/i)
+  end
+
   it 'is idempotent when reconnecting a provider identity already linked to the same account' do
     user = create(:user)
     post session_path, params: { user: { email: user.email, password: 'password123' } }
