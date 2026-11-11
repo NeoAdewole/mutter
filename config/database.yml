@@ -22,8 +22,9 @@ default: &default
 development:
   <<: *default
   username: postgres
+  host: 127.0.0.1
   port: 5432
-  database: mutter_development
+  database: mutter_dev
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
@@ -58,6 +59,8 @@ development:
 test:
   <<: *default
   username: postgres
+  host: 127.0.0.1
+  port: 5432
   database: mutter_test
 
 # As with config/credentials.yml, you never want to store sensitive information,

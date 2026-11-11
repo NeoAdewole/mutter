@@ -1,6 +1,0 @@
-alice_scheduled_tweet:
-  user: alice
-  twitter_account: alice_twitter
-  body: Hello from Mutter!
-  publish_at: 2099-01-01 12:00:00
-  tweet_id:

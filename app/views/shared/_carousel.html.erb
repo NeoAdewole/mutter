@@ -1,0 +1,61 @@
+<%# Image carousel: Tailwind utilities for styling, app/javascript/controllers/carousel_controller.js for behavior.
+    Pass `slides: [{ src:, alt: }, ...]` to override the default banners. %>
+<% 
+    slides = local_assigns.fetch(:slides) do
+     (1..4).map { |n| { src: "https://picsum.photos/1500/500?text=Banner+#{n}", alt: "Banner #{n}" } }
+    end 
+%>
+<section class="w-full" data-controller="carousel" aria-roledescription="carousel" aria-label="Featured banners">
+  <div class="relative">
+    <div
+      class="flex w-full snap-x snap-mandatory overflow-x-auto rounded-lg motion-safe:scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      tabindex="0"
+      aria-live="polite"
+      data-carousel-target="track"
+      data-action="scroll->carousel#sync keydown->carousel#keydown">
+      <% slides.each_with_index do |slide, i| %>
+        <div
+          class="w-full shrink-0 snap-center"
+          role="group"
+          aria-roledescription="slide"
+          aria-label="<%= i + 1 %> of <%= slides.size %>"
+          data-carousel-target="slide"
+        >
+          <%= image_tag slide[:src], alt: slide[:alt], class: "w-full" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="pointer-events-none absolute inset-x-5 top-1/2 flex -translate-y-1/2 justify-between">
+      <button
+        type="button"
+        class="pointer-events-auto inline-flex size-10 items-center justify-center rounded-full bg-black/50 text-white transition hover:bg-black/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        aria-label="Previous slide"
+        data-action="carousel#previous">
+        <span aria-hidden="true">❮</span>
+      </button>
+      <button
+        type="button"
+        class="pointer-events-auto inline-flex size-10 items-center justify-center rounded-full bg-black/50 text-white transition hover:bg-black/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        aria-label="Next slide"
+        data-action="carousel#next">
+        <span aria-hidden="true">❯</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex w-full justify-center gap-2 py-2">
+    <% slides.each_with_index do |_slide, i| %>
+      <button
+        type="button"
+        class="rounded-full bg-gray-500/40 px-3 py-1 text-xs font-medium text-gray-100 transition hover:bg-gray-500/70 aria-[current=true]:bg-gray-100 aria-[current=true]:text-gray-900"
+        aria-label="Go to slide <%= i + 1 %>"
+        <%= 'aria-current="true"'.html_safe if i.zero? %>
+        data-carousel-target="indicator"
+        data-action="carousel#select"
+        data-carousel-index-param="<%= i %>">
+        <%= i + 1 %>
+      </button>
+    <% end %>
+  </div>
+</section>
