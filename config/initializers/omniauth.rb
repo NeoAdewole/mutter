@@ -21,9 +21,11 @@ Rails.application.config.middleware.use OmniAuth::Builder do
            Rails.application.credentials.dig(:discord, :client_secret),
            scope: 'identify email'
 
+  # Twitch's credentials are stored flat (twitch_client_id / twitch_client_secret);
+  # the nested form used by the other providers is still honored.
   provider :twitch,
-           Rails.application.credentials.dig(:twitch, :client_id),
-           Rails.application.credentials.dig(:twitch, :client_secret),
+           Rails.application.credentials.dig(:twitch, :client_id) || Rails.application.credentials[:twitch_client_id],
+           Rails.application.credentials.dig(:twitch, :client_secret) || Rails.application.credentials[:twitch_client_secret],
            scope: 'user:read:email'
 
   OmniAuth.config.logger = Rails.logger
