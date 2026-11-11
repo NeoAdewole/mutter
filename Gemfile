@@ -75,6 +75,7 @@ group :test do
   gem 'rspec-rails', '~> 6.0.0'
   gem 'selenium-webdriver'
   gem 'shoulda-matchers', '~> 6.0'
+  gem 'webmock'
 end
 
 gem 'dockerfile-rails', '>= 1.5', group: :development

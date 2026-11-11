@@ -111,4 +111,10 @@ RSpec.describe User, type: :model do
       expect(create(:user).password_set).to be true
     end
   end
+
+  describe 'show_stream_on_homepage default' do
+    it 'is on until the user opts out' do
+      expect(create(:user).show_stream_on_homepage).to be true
+    end
+  end
 end

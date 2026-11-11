@@ -1,9 +1,12 @@
 <%# Image carousel: Tailwind utilities for styling, app/javascript/controllers/carousel_controller.js for behavior.
-    Pass `slides: [{ src:, alt: }, ...]` to override the default banners. %>
-<% 
+    Pass `slides: [{ src:, alt: }, ...]` to override the default banners, and `streams: [Twitch::Stream, ...]`
+    to put live Twitch streams ahead of them. %>
+<%
+    streams = local_assigns.fetch(:streams, [])
     slides = local_assigns.fetch(:slides) do
-     (1..4).map { |n| { src: "https://picsum.photos/1500/500?text=Banner+#{n}", alt: "Banner #{n}" } }
-    end 
+      (1..4).map { |n| { src: "https://picsum.photos/1500/500?text=Banner+#{n}", alt: "Banner #{n}" } }
+    end
+    total = streams.size + slides.size
 %>
 <section class="w-full" data-controller="carousel" aria-roledescription="carousel" aria-label="Featured banners">
   <div class="relative">
@@ -13,15 +16,19 @@
       aria-live="polite"
       data-carousel-target="track"
       data-action="scroll->carousel#sync keydown->carousel#keydown">
+      <% streams.each_with_index do |stream, i| %>
+        <%= render "shared/carousel_stream_slide", stream: stream, position: i + 1, total: total %>
+      <% end %>
       <% slides.each_with_index do |slide, i| %>
         <div
           class="w-full shrink-0 snap-center"
           role="group"
           aria-roledescription="slide"
-          aria-label="<%= i + 1 %> of <%= slides.size %>"
+          aria-label="<%= streams.size + i + 1 %> of <%= total %>"
           data-carousel-target="slide"
         >
-          <%= image_tag slide[:src], alt: slide[:alt], class: "w-full" %>
+          <%# h-full/object-cover: when a taller live-stream slide sets the row height (small screens), banners fill it. %>
+          <%= image_tag slide[:src], alt: slide[:alt], class: "h-full w-full object-cover" %>
         </div>
       <% end %>
     </div>
@@ -45,15 +52,17 @@
   </div>
 
   <div class="flex w-full justify-center gap-2 py-2">
-    <% slides.each_with_index do |_slide, i| %>
+    <% total.times do |i| %>
+      <% stream = streams[i] %>
       <button
         type="button"
-        class="rounded-full bg-gray-500/40 px-3 py-1 text-xs font-medium text-gray-100 transition hover:bg-gray-500/70 aria-[current=true]:bg-gray-100 aria-[current=true]:text-gray-900"
-        aria-label="Go to slide <%= i + 1 %>"
+        class="inline-flex items-center gap-1.5 rounded-full bg-gray-500/40 px-3 py-1 text-xs font-medium text-gray-100 transition hover:bg-gray-500/70 aria-[current=true]:bg-gray-100 aria-[current=true]:text-gray-900"
+        aria-label="Go to slide <%= i + 1 %><%= " (#{stream.name}, live)" if stream %>"
         <%= 'aria-current="true"'.html_safe if i.zero? %>
         data-carousel-target="indicator"
         data-action="carousel#select"
         data-carousel-index-param="<%= i %>">
+        <% if stream %><span class="size-1.5 rounded-full bg-red-500" aria-hidden="true"></span><% end %>
         <%= i + 1 %>
       </button>
     <% end %>

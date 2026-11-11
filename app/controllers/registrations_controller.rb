@@ -46,6 +46,6 @@ class RegistrationsController < ApplicationController
   end
 
   def update_params
-    params.require(:user).permit(:email, :firstname, :lastname, :username)
+    params.require(:user).permit(:email, :firstname, :lastname, :username, :show_stream_on_homepage)
   end
 end

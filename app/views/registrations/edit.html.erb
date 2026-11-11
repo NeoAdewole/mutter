@@ -23,6 +23,17 @@
     <%= form.text_field :username, class: "form-control" %>
   </div>
 
+  <div class="col-auto mb-4 flex items-start gap-3">
+    <%= form.check_box :show_stream_on_homepage, class: "mt-1 size-4 accent-purple-500" %>
+    <div>
+      <%= form.label :show_stream_on_homepage, "Show my stream on the home page when I'm live", class: "font-medium" %>
+      <p class="text-sm text-gray-400">
+        If you've connected Twitch, your stream can be featured in the home page carousel while you're live.
+        Turn this off to keep it out of the carousel (it doesn't affect your Streaming page).
+      </p>
+    </div>
+  </div>
+
   <div class="input-group mb3 justify-content-between">
     <div class="col-auto">
       <%= link_to "Cancel", :root, class: "btn btn-danger mb-3" %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 20_261_111_132_502) do
+ActiveRecord::Schema[7.2].define(version: 20_261_111_144_911) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
@@ -57,6 +57,7 @@ ActiveRecord::Schema[7.2].define(version: 20_261_111_132_502) do
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
     t.boolean 'password_set', default: true, null: false
+    t.boolean 'show_stream_on_homepage', default: true, null: false
   end
 
   add_foreign_key 'identities', 'users'

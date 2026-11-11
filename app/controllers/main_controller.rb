@@ -1,3 +1,5 @@
 class MainController < ApplicationController
-  def index; end
+  def index
+    @live_streams = Twitch::LiveStreams.current
+  end
 end

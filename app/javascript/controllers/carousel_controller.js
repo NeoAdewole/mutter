@@ -4,9 +4,21 @@ import { Controller } from "@hotwired/stimulus"
 // markup; this only drives which slide is showing. The track is a native
 // scroll-snap container, so touch swiping and (via motion-safe:scroll-smooth
 // on the track) reduced-motion handling come from the browser and CSS.
+//
+// Slides can hold an embedded player (an iframe target with a data-src). Only
+// the slide on screen has its player loaded, and only once the carousel has
+// stopped moving, so streams don't all autoplay at once and swiping away
+// stops one.
+const SETTLE_MS = 300
+
 export default class extends Controller {
-  static targets = ["track", "slide", "indicator"]
+  static targets = ["track", "slide", "indicator", "frame"]
   static values = { index: { type: Number, default: 0 } }
+
+  disconnect() {
+    clearTimeout(this.settleTimer)
+    this.frameTargets.forEach((frame) => frame.removeAttribute("src"))
+  }
 
   next() {
     this.goTo((this.indexValue + 1) % this.slideTargets.length)
@@ -41,6 +53,23 @@ export default class extends Controller {
     this.indicatorTargets.forEach((indicator, i) => {
       if (i === this.indexValue) indicator.setAttribute("aria-current", "true")
       else indicator.removeAttribute("aria-current")
+    })
+
+    // Debounced: a smooth scroll across several slides passes through every
+    // index on the way, and we don't want to load the players it passes over.
+    clearTimeout(this.settleTimer)
+    this.settleTimer = setTimeout(() => this.loadActivePlayerOnly(), SETTLE_MS)
+  }
+
+  loadActivePlayerOnly() {
+    const active = this.slideTargets[this.indexValue]
+
+    this.frameTargets.forEach((frame) => {
+      if (active?.contains(frame)) {
+        if (!frame.getAttribute("src")) frame.setAttribute("src", frame.dataset.src)
+      } else {
+        frame.removeAttribute("src")
+      }
     })
   }
 
