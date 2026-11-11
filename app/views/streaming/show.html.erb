@@ -1,0 +1,71 @@
+<div class="mb-4">
+  <h1 class="text-2xl font-semibold">Streaming</h1>
+  <p class="text-sm text-gray-400">Live chat from every channel you've connected, merged into one feed.</p>
+</div>
+
+<% if @channels.any? %>
+  <%= tag.div data: { controller: "chat", chat_channels_value: @channels.to_json } do %>
+    <ul class="mb-3 flex flex-wrap gap-2" aria-label="Connected channels">
+      <% @channels.each do |channel| %>
+        <li
+          class="group inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs text-gray-100"
+          data-chat-target="status"
+          data-key="<%= channel[:provider] %>:<%= channel[:channel] %>"
+          data-state="connecting">
+          <span class="size-2 rounded-full bg-gray-400 group-data-[state=connected]:bg-green-500 group-data-[state=reconnecting]:bg-yellow-400 group-data-[state=error]:bg-red-500" aria-hidden="true"></span>
+          <span><%= channel[:label] %></span>
+          <span class="text-gray-400" data-chat-label>Connecting</span>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="relative">
+      <div
+        role="log"
+        aria-label="Chat"
+        aria-live="off"
+        tabindex="0"
+        class="h-[32rem] overflow-y-auto rounded-lg border border-white/10 bg-black/30 p-3 text-sm leading-relaxed"
+        data-chat-target="feed"
+        data-action="scroll->chat#trackScroll">
+        <p class="text-gray-400" data-chat-target="placeholder">Waiting for messages&hellip;</p>
+      </div>
+      <button
+        type="button"
+        hidden
+        class="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-purple-600 px-4 py-1 text-xs font-medium text-white shadow-lg transition hover:bg-purple-500"
+        data-chat-target="jump"
+        data-action="chat#jumpToLatest">
+        Jump to latest
+      </button>
+    </div>
+    <p class="mt-2 text-xs text-gray-400">Read-only. Channels appear here as you connect more accounts.</p>
+  <% end %>
+<% else %>
+  <div class="rounded-lg border border-white/10 bg-black/30 p-6">
+    <p class="font-medium">No live chat to show yet.</p>
+    <p class="mt-1 text-sm text-gray-400">Connect a streaming account and its chat will appear here.</p>
+  </div>
+<% end %>
+
+<% if @needs_reconnect.any? || @connectable.any? %>
+  <div class="mt-4 flex flex-col gap-4">
+    <% @needs_reconnect.each do |provider| %>
+      <div>
+        <p class="text-sm">
+          Your <%= provider.titleize %> account is connected, but we don't have your channel name yet.
+          Reconnect it once to link your channel.
+        </p>
+        <%= button_to "Reconnect #{provider.titleize}", "/auth/#{provider}?connect=true&return=streaming",
+                      method: :post, data: { turbo: "false" },
+                      class: "mt-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-500" %>
+      </div>
+    <% end %>
+
+    <% @connectable.each do |provider| %>
+      <%= button_to "Connect #{provider.titleize}", "/auth/#{provider}?connect=true&return=streaming",
+                    method: :post, data: { turbo: "false" },
+                    class: "rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-500" %>
+    <% end %>
+  </div>
+<% end %>

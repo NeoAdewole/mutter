@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   get 'up' => 'rails/health#show', as: :rails_health_check
 
   get 'about', to: 'about#index'
+  get 'streaming', to: 'streaming#show'
 
   match '/auth/:provider/callback', to: 'sessions#create', via: %i[get post]
   get '/auth/failure', to: 'omniauth_callbacks#failure'

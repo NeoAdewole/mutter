@@ -72,16 +72,22 @@ class SessionsController < ApplicationController
 
     case current_user.connect_identity_from_auth_hash(auth)
     when :connected
-      redirect_to edit_registration_path, notice: "Connected your #{provider_name} account. You can sign in with it too now."
+      redirect_to connection_return_path, notice: "Connected your #{provider_name} account. You can sign in with it too now."
     when :already_connected
-      redirect_to edit_registration_path, notice: "Your #{provider_name} account is already connected."
+      redirect_to connection_return_path, notice: "Your #{provider_name} account is already connected."
     when :conflict
-      redirect_to edit_registration_path,
+      redirect_to connection_return_path,
                   alert: "That #{provider_name} account is already connected to a different Mutter account."
     end
   end
 
   def connecting_provider?
     request.env['omniauth.params'].to_h['connect'] == 'true'
+  end
+
+  # Pages that offer a Connect button can ask to be returned to (?return=streaming).
+  # Only these known destinations are honored, so the param can't be an open redirect.
+  def connection_return_path
+    { 'streaming' => streaming_path }.fetch(request.env['omniauth.params'].to_h['return'], edit_registration_path)
   end
 end

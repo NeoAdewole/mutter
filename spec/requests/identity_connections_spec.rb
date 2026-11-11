@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe 'Connecting an identity provider to an existing, logged-in account', type: :request do
-  def start_connect_flow(provider: 'developer', **auth_attrs)
+  def start_connect_flow(provider: 'developer', return_to: nil, **auth_attrs)
     mock_provider_auth(provider: provider, **auth_attrs)
-    post "/auth/#{provider}?connect=true"
+    post "/auth/#{provider}?connect=true#{"&return=#{return_to}" if return_to}"
     follow_redirect! # -> /auth/:provider/callback
   end
 
@@ -38,6 +38,17 @@ RSpec.describe 'Connecting an identity provider to an existing, logged-in accoun
 
     expect(identity.reload.username).to eq('backfilled')
     expect(flash[:notice]).to match(/already connected/i)
+  end
+
+  it 'can send the user back to the Streaming page afterwards, and ignores any other return target' do
+    user = create(:user)
+    post session_path, params: { user: { email: user.email, password: 'password123' } }
+
+    start_connect_flow(uid: 'dev-uid-return', return_to: 'streaming')
+    expect(response).to redirect_to(streaming_path)
+
+    start_connect_flow(uid: 'dev-uid-return-2', return_to: 'https://evil.example')
+    expect(response).to redirect_to(edit_registration_path)
   end
 
   it 'is idempotent when reconnecting a provider identity already linked to the same account' do
