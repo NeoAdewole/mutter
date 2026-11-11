@@ -37,7 +37,8 @@ end
 RSpec.configure do |config|
   config.include OmniauthTestHelpers, type: :request
 
+  # mock_auth is global state; don't let one example's provider mock leak into the next.
   config.after(:each, type: :request) do
-    OmniAuth.config.mock_auth[:developer] = nil
+    OmniAuth.config.mock_auth.each_key { |provider| OmniAuth.config.mock_auth[provider] = nil unless provider == :default }
   end
 end

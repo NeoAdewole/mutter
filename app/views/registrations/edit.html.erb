@@ -49,7 +49,14 @@
   <ul>
     <% @identities.each do |identity| %>
       <li>
-        <%= identity.provider.capitalize %>
+        <%# Each connection shows its own handle on its own service; these can all differ from
+            each other and from the Mutter username above. %>
+        <strong><%= Identity.label_for(identity.provider) %></strong>
+        <% if identity.profile_url %>
+          <%= link_to identity.username, identity.profile_url, target: "_blank", rel: "noopener noreferrer", class: "underline" %>
+        <% elsif identity.username.present? %>
+          <%= identity.username %>
+        <% end %>
         connected <%= identity.created_at.strftime("%b %-d, %Y") %>
         <%= link_to "Disconnect", identity_path(identity), method: :delete, data: { confirm: "Are you sure you want to disconnect this account?" } %>
       </li>
@@ -71,6 +78,12 @@
       </div>
     <% end %>
   </div>
+  <% if connectable_providers.any? { |provider| provider[:key] == "youtube" } %>
+    <p class="text-sm text-gray-400">
+      YouTube is connected separately from signing in with Google. It only asks Google for read-only
+      access to your channel's name, and can't be used to sign in.
+    </p>
+  <% end %>
 <% end %>
 
 <%= button_to "Delete Account", registration_path, method: :delete, data: { confirm: "Are you sure you want to delete your account? This action cannot be undone." } %>
