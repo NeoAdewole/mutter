@@ -1,0 +1,67 @@
+<div class="my-6">
+  <h1 class="text-3xl font-bold">Users</h1>
+  <p class="mt-1 text-sm text-base-content/70">Find people, check their linked accounts, and manage access.</p>
+
+  <%= form_with url: admin_users_path, method: :get, class: "mt-4 flex flex-wrap items-end gap-3", data: { turbo_action: "advance" } do %>
+    <div>
+      <label for="q" class="label text-sm">Search</label>
+      <input type="search" id="q" name="q" value="<%= @filters[:q] %>" placeholder="Username, email or name" class="input input-bordered input-sm w-60" />
+    </div>
+    <div>
+      <label for="role" class="label text-sm">Role</label>
+      <%= select_tag :role, options_for_select([["Admins and regular", ""], ["Admins", "admin"], ["Regular users", "regular"]], @filters[:role]), class: "select select-bordered select-sm" %>
+    </div>
+    <div>
+      <label for="status" class="label text-sm">Status</label>
+      <%= select_tag :status, options_for_select([["Any status", ""], ["Active", "active"], ["Suspended", "suspended"]], @filters[:status]), class: "select select-bordered select-sm" %>
+    </div>
+    <div>
+      <label for="provider" class="label text-sm">Linked account</label>
+      <%= select_tag :provider, options_for_select([["Any service", ""]] + Identity::PROVIDER_LABELS.map { |key, label| [label, key] }, @filters[:provider]), class: "select select-bordered select-sm" %>
+    </div>
+    <div>
+      <label for="sort" class="label text-sm">Sort by</label>
+      <%= select_tag :sort, options_for_select(User::SORTS.map { |key, (label, _)| [label, key] }, @filters[:sort]), class: "select select-bordered select-sm" %>
+    </div>
+    <div class="flex gap-2">
+      <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+      <%= link_to "Reset", admin_users_path, class: "btn btn-ghost btn-sm" %>
+    </div>
+  <% end %>
+
+  <div class="mt-4 overflow-x-auto">
+    <table class="table table-sm" data-users-table>
+      <caption class="sr-only">Users</caption>
+      <thead>
+        <tr>
+          <th scope="col">User</th>
+          <th scope="col" class="hidden tablet:table-cell">Linked accounts</th>
+          <th scope="col" class="hidden laptop:table-cell">Joined</th>
+          <th scope="col" class="hidden laptop:table-cell">Last sign-in</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr data-user-id="<%= user.id %>">
+            <td>
+              <%= link_to user.username, admin_user_path(user), class: "link font-medium" %>
+              <%= render "admin/users/badges", user: user %>
+              <span class="block break-all text-xs text-base-content/70"><%= user.email %></span>
+            </td>
+            <td class="hidden tablet:table-cell">
+              <% if user.identities.empty? %>
+                <span class="text-xs text-base-content/60">None</span>
+              <% else %>
+                <%= user.identities.map { |identity| Identity.label_for(identity.provider) }.uniq.to_sentence %>
+              <% end %>
+            </td>
+            <td class="hidden laptop:table-cell"><%= admin_time(user.created_at) %></td>
+            <td class="hidden laptop:table-cell"><%= admin_ago(user.last_sign_in_at) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <%= render "admin/shared/pagination", pagination: @pagination, noun: "users" %>
+</div>

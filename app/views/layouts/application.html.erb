@@ -11,12 +11,14 @@
     <%= javascript_importmap_tags %>
   </head>
   <body>
+    <%= render partial: "shared/announcement" %>
     <%= render partial: "shared/navbar" %>
 
     <div class="container mx-auto px-4">
       <div><%= render partial: "shared/flash" %></div>
       <%= render partial: "shared/account_status" %>
-      <main><%= yield %></main>
+      <%# Admin pages are wrapped by layouts/admin, which supplies :admin_body. %>
+      <main><%= content_for?(:admin_body) ? yield(:admin_body) : yield %></main>
       <div class="relative"><%= render "shared/footer" %></div>
     </div>
   </body>

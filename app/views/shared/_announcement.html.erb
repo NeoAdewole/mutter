@@ -1,0 +1,10 @@
+<%# The sitewide banner an admin can switch on in Admin > Settings. Plain text only (ERB escapes it). %>
+<% message = SiteSetting.get("announcement_message") %>
+<% if SiteSetting.get("announcement_enabled") && message.present? %>
+  <% level = SiteSetting.get("announcement_level") %>
+  <%# Written out in full so Tailwind's class scanner finds every one of them. %>
+  <% style = { "info" => "alert-info", "success" => "alert-success", "warning" => "alert-warning", "error" => "alert-error" }.fetch(level, "alert-info") %>
+  <div class="alert <%= style %> rounded-none justify-center" role="status" data-announcement data-level="<%= level %>">
+    <span><%= message %></span>
+  </div>
+<% end %>

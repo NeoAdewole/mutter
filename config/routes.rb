@@ -22,13 +22,28 @@ Rails.application.routes.draw do
   resource :password
 
   namespace :admin do
-    root to: 'pages#index'
+    root to: 'dashboard#show'
     resources :pages, except: :show do
       member do
         patch :publish
         patch :unpublish
         patch :move
       end
+    end
+    resources :users, only: %i[index show edit update destroy] do
+      member do
+        patch :grant_admin
+        patch :revoke_admin
+        patch :suspend
+        patch :unsuspend
+        post :send_password_reset
+      end
+      resources :identities, only: :destroy
+    end
+    resources :audit_logs, only: :index
+    resource :settings, only: %i[show update]
+    resource :system, only: :show, controller: 'system' do
+      post :clear_cache
     end
   end
 

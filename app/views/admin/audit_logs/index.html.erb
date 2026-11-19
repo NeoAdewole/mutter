@@ -1,0 +1,58 @@
+<div class="my-6">
+  <h1 class="text-3xl font-bold">Audit log</h1>
+  <p class="mt-1 text-sm text-base-content/70">
+    Every change an admin makes, newest first. Entries can't be edited or removed, and keep the names as they were at the time.
+  </p>
+
+  <%= form_with url: admin_audit_logs_path, method: :get, class: "mt-4 flex flex-wrap items-end gap-3" do %>
+    <div>
+      <label for="q" class="label text-sm">Admin or subject</label>
+      <input type="search" id="q" name="q" value="<%= @filters[:q] %>" placeholder="Name or email" class="input input-bordered input-sm w-56" />
+    </div>
+    <div>
+      <label for="action_filter" class="label text-sm">Action</label>
+      <%= select_tag :action_filter, options_for_select([["All actions", ""]] + AuditLog::ACTIONS.map { |key, label| [label, key] }, @filters[:action]), class: "select select-bordered select-sm" %>
+    </div>
+    <div>
+      <label for="period" class="label text-sm">When</label>
+      <%= select_tag :period, options_for_select([["Any time", ""], ["Last 24 hours", "1d"], ["Last 7 days", "7d"], ["Last 30 days", "30d"]], @filters[:period]), class: "select select-bordered select-sm" %>
+    </div>
+    <div class="flex gap-2">
+      <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+      <%= link_to "Reset", admin_audit_logs_path, class: "btn btn-ghost btn-sm" %>
+    </div>
+  <% end %>
+
+  <div class="mt-4 overflow-x-auto">
+    <table class="table table-sm" data-audit-table>
+      <caption class="sr-only">Audit log</caption>
+      <thead>
+        <tr>
+          <th scope="col">When</th>
+          <th scope="col">Admin</th>
+          <th scope="col">Action</th>
+          <th scope="col" class="hidden tablet:table-cell">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @entries.each do |entry| %>
+          <tr data-audit-action="<%= entry.action %>">
+            <td class="whitespace-nowrap"><%= admin_time(entry.created_at) %></td>
+            <td><%= entry.actor_label || "(deleted admin)" %></td>
+            <td>
+              <%= entry.summary %>
+              <% if entry.target_label %><span class="block break-all text-xs text-base-content/70"><%= entry.target_label %></span><% end %>
+              <span class="block text-xs text-base-content/70 tablet:hidden"><%= audit_details(entry) %></span>
+            </td>
+            <td class="hidden break-all text-xs tablet:table-cell">
+              <%= audit_details(entry) %>
+              <% if entry.ip_address.present? %><span class="block text-base-content/60">from <%= entry.ip_address %></span><% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <%= render "admin/shared/pagination", pagination: @pagination, noun: "entries" %>
+</div>

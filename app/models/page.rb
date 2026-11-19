@@ -30,6 +30,11 @@ class Page < ApplicationRecord
     Section.find(section)
   end
 
+  # How this page is named in the audit log (kept even after it is deleted).
+  def audit_label
+    "#{section_info&.title || section}: #{title}"
+  end
+
   def rendered_body
     MarkdownRenderer.call(body)
   end

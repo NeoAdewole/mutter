@@ -1,0 +1,9 @@
+<div class="mx-auto my-24 max-w-xl text-center">
+  <h1 class="text-3xl font-bold">We'll be right back</h1>
+  <p class="mt-4" data-maintenance-message>
+    <%= SiteSetting.get("maintenance_message").presence || "Mutter is down for maintenance. Please check back soon." %>
+  </p>
+  <p class="mt-8 text-sm text-base-content/70">
+    Site admin? <%= link_to "Sign in", new_session_path, class: "link" %>.
+  </p>
+</div>

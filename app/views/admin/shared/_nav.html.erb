@@ -1,0 +1,20 @@
+<%
+  admin_tabs = [
+    ["Dashboard", admin_root_path, :exact],
+    ["Pages", admin_pages_path, :prefix],
+    ["Users", admin_users_path, :prefix],
+    ["Audit log", admin_audit_logs_path, :prefix],
+    ["Settings", admin_settings_path, :prefix],
+    ["System", admin_system_path, :prefix]
+  ]
+%>
+<nav class="mt-4 overflow-x-auto" aria-label="Admin">
+  <ul class="menu menu-horizontal flex-nowrap gap-1 rounded-box bg-base-200 p-1">
+    <% admin_tabs.each do |label, path, match| %>
+      <% current = match == :exact ? request.path == path : request.path.start_with?(path) %>
+      <li>
+        <%= link_to label, path, class: ("menu-active" if current), aria: { current: ("page" if current) } %>
+      </li>
+    <% end %>
+  </ul>
+</nav>

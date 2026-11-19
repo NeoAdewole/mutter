@@ -1,0 +1,133 @@
+<% self_view = @user == current_user %>
+<div class="my-6">
+  <p class="text-sm"><%= link_to "← All users", admin_users_path, class: "link" %></p>
+  <div class="mt-2 flex flex-wrap items-center gap-2">
+    <h1 class="text-3xl font-bold"><%= @user.username %></h1>
+    <%= render "admin/users/badges", user: @user %>
+    <% if self_view %><span class="badge badge-outline badge-sm">This is you</span><% end %>
+  </div>
+  <p class="mt-1 text-sm text-base-content/70"><%= @user.full_name %> &middot; <span class="break-all"><%= @user.email %></span></p>
+
+  <% if @user.suspended? %>
+    <div class="alert alert-error mt-4" role="status" data-suspension>
+      <div>
+        <p class="font-semibold">Suspended <%= admin_ago(@user.suspended_at) %>. They are signed out and can't sign in.</p>
+        <% if @user.suspension_reason.present? %><p>Reason: <%= @user.suspension_reason %></p><% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="mt-6 grid gap-8 laptop:grid-cols-2">
+    <section aria-labelledby="details-heading">
+      <div class="flex items-center gap-2">
+        <h2 id="details-heading" class="text-xl font-semibold">Details</h2>
+        <%= link_to "Edit", edit_admin_user_path(@user), class: "btn btn-xs btn-outline", aria: { label: "Edit #{@user.username}" } %>
+      </div>
+      <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-user-details>
+        <dt class="text-base-content/70">Joined</dt><dd><%= admin_time(@user.created_at) %></dd>
+        <dt class="text-base-content/70">Last sign-in</dt><dd><%= admin_ago(@user.last_sign_in_at) %></dd>
+        <dt class="text-base-content/70">Sign-ins</dt><dd><%= @user.sign_in_count %></dd>
+        <dt class="text-base-content/70">Password</dt><dd><%= @user.password_set? ? "Set" : "Not set (signs in with a provider)" %></dd>
+        <dt class="text-base-content/70">Home page stream</dt><dd><%= @user.show_stream_on_homepage? ? "Shown when live" : "Opted out" %></dd>
+        <dt class="text-base-content/70">Twitter accounts</dt><dd><%= @user.twitter_accounts.count %></dd>
+        <dt class="text-base-content/70">Tweets</dt><dd><%= @user.tweets.count %></dd>
+      </dl>
+    </section>
+
+    <section aria-labelledby="linked-heading">
+      <h2 id="linked-heading" class="text-xl font-semibold">Linked accounts</h2>
+      <% if @identities.empty? %>
+        <p class="mt-2 text-sm text-base-content/70">None. This person signs in with email and password.</p>
+      <% else %>
+        <table class="table table-sm mt-2" data-identities>
+          <caption class="sr-only">Linked accounts</caption>
+          <thead><tr><th scope="col">Service</th><th scope="col">Handle</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+          <tbody>
+            <% @identities.each do |identity| %>
+              <tr data-identity-id="<%= identity.id %>">
+                <td><%= Identity.label_for(identity.provider) %></td>
+                <td>
+                  <% if identity.profile_url %>
+                    <%= link_to identity.username, identity.profile_url, target: "_blank", rel: "noopener noreferrer", class: "link" %>
+                  <% else %>
+                    <%= identity.username.presence || "—" %>
+                  <% end %>
+                  <span class="block text-xs text-base-content/70">connected <%= admin_time(identity.created_at) %></span>
+                </td>
+                <td class="text-right">
+                  <%= button_to "Disconnect", admin_user_identity_path(@user, identity), method: :delete, class: "btn btn-xs btn-outline btn-error",
+                                form: { class: "inline", data: { turbo_confirm: "Disconnect #{Identity.label_for(identity.provider)} from #{@user.username}?" } },
+                                aria: { label: "Disconnect #{Identity.label_for(identity.provider)} from #{@user.username}" } %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </section>
+  </div>
+
+  <section class="mt-8" aria-labelledby="actions-heading">
+    <h2 id="actions-heading" class="text-xl font-semibold">Access</h2>
+    <div class="mt-2 flex flex-wrap items-start gap-4">
+      <% if @user.admin? %>
+        <% unless self_view %>
+          <%= button_to "Remove admin rights", revoke_admin_admin_user_path(@user), method: :patch, class: "btn btn-sm btn-outline",
+                        form: { data: { turbo_confirm: "Remove admin rights from #{@user.username}?" } } %>
+        <% end %>
+      <% else %>
+        <%= button_to "Make admin", grant_admin_admin_user_path(@user), method: :patch, class: "btn btn-sm btn-outline",
+                      form: { data: { turbo_confirm: "Give #{@user.username} full admin access to this site?" } } %>
+      <% end %>
+
+      <% unless @user.placeholder_email? %>
+        <%= button_to "Send password reset email", send_password_reset_admin_user_path(@user), method: :post, class: "btn btn-sm btn-outline",
+                      form: { data: { turbo_confirm: "Email a password reset link to #{@user.email}?" } } %>
+      <% end %>
+
+      <% if @user.suspended? %>
+        <%= button_to "Restore access", unsuspend_admin_user_path(@user), method: :patch, class: "btn btn-sm btn-success" %>
+      <% elsif !self_view %>
+        <%= form_with url: suspend_admin_user_path(@user), method: :patch, class: "flex flex-wrap items-end gap-2", data: { turbo_confirm: "Suspend #{@user.username}? They will be signed out immediately." } do %>
+          <div>
+            <label for="reason" class="label text-sm">Reason (shown to them when they try to sign in)</label>
+            <input type="text" id="reason" name="reason" maxlength="500" class="input input-bordered input-sm w-72" />
+          </div>
+          <button type="submit" class="btn btn-sm btn-warning">Suspend</button>
+        <% end %>
+      <% end %>
+    </div>
+    <% if self_view %>
+      <p class="mt-2 text-xs text-base-content/70">You can't remove your own admin rights or suspend or delete yourself. Ask another admin.</p>
+    <% end %>
+  </section>
+
+  <section class="mt-8" aria-labelledby="activity-heading">
+    <h2 id="activity-heading" class="text-xl font-semibold">Recent admin activity</h2>
+    <% if @activity.empty? %>
+      <p class="mt-2 text-sm text-base-content/70">Nothing recorded for this user.</p>
+    <% else %>
+      <ul class="mt-2 divide-y divide-base-300" data-activity>
+        <% @activity.each do |entry| %>
+          <li class="py-2 text-sm">
+            <%= entry.actor_label || "Someone" %> &middot; <%= entry.summary %><%= " — #{entry.target_label}" if entry.target_label %>
+            <% if (text = audit_details(entry)).present? %><span class="block text-xs text-base-content/70"><%= text %></span><% end %>
+            <span class="block text-xs text-base-content/70"><%= admin_time(entry.created_at) %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+
+  <% unless self_view %>
+    <section class="mt-8 rounded-box border border-error/40 p-4" aria-labelledby="danger-heading">
+      <h2 id="danger-heading" class="text-xl font-semibold text-error">Delete this user</h2>
+      <p class="mt-1 text-sm">
+        Permanently removes the account, its linked accounts, Twitter accounts and tweets. This can't be undone.
+        If you only want to stop them signing in, suspend them instead.
+      </p>
+      <%= button_to "Delete #{@user.username}", admin_user_path(@user), method: :delete, class: "btn btn-sm btn-error mt-3",
+                    form: { data: { turbo_confirm: "Permanently delete #{@user.username}? This can't be undone." } } %>
+    </section>
+  <% end %>
+</div>

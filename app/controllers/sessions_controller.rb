@@ -1,5 +1,7 @@
 class SessionsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: :create
+  # Admins must be able to sign in during maintenance mode to switch it off.
+  skip_before_action :enforce_maintenance_mode
 
   def new
     @user = User.new
@@ -25,6 +27,8 @@ class SessionsController < ApplicationController
     @user = User.find_by(email: email_or_username) || User.find_by(username: email_or_username)
 
     if @user&.authenticate(params[:user][:password])
+      return refuse_suspended_login(@user) if @user.suspended?
+
       login(@user)
       redirect_to about_path, notice: 'Signed in!'
     else
@@ -36,12 +40,11 @@ class SessionsController < ApplicationController
     auth = request.env['omniauth.auth']
     return refuse_connect_only_login(auth) if Identity::CONNECT_ONLY_PROVIDERS.include?(auth.provider.to_s)
 
-    user = User.find_or_create_from_auth_hash(auth)
+    return refuse_new_account unless SiteSetting.get('signups_enabled') || User.account_exists_for?(auth)
 
-    unless user.persisted?
-      redirect_to root_path, alert: 'Failed to sign in!'
-      return
-    end
+    user = User.find_or_create_from_auth_hash(auth)
+    return redirect_to(root_path, alert: 'Failed to sign in!') unless user.persisted?
+    return refuse_suspended_login(user) if user.suspended?
 
     newly_created = user.previously_new_record?
     login(user)
@@ -82,6 +85,16 @@ class SessionsController < ApplicationController
       redirect_to connection_return_path,
                   alert: "That #{provider_name} account is already connected to a different Mutter account."
     end
+  end
+
+  def refuse_suspended_login(user)
+    reason = user.suspension_reason.presence
+    redirect_to new_session_path,
+                alert: "This account has been suspended#{": #{reason}" if reason}. Contact a site admin if you think that is a mistake."
+  end
+
+  def refuse_new_account
+    redirect_to new_session_path, alert: 'New sign-ups are paused right now. If you already have an account, sign in with the method you used before.'
   end
 
   # YouTube (and any other connect-only provider) must never create or log in an account.

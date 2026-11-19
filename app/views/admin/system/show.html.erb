@@ -1,0 +1,77 @@
+<% database = @status.database %>
+<div class="my-6">
+  <h1 class="text-3xl font-bold">System</h1>
+  <p class="mt-1 text-sm text-base-content/70">Read-only health information. Secret values are never shown, only whether they are set.</p>
+
+  <div class="mt-6 grid gap-8 laptop:grid-cols-2">
+    <section aria-labelledby="app-heading">
+      <h2 id="app-heading" class="text-xl font-semibold">Application</h2>
+      <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-app-info>
+        <% @status.app.each do |label, value| %>
+          <dt class="text-base-content/70"><%= label %></dt><dd><%= value %></dd>
+        <% end %>
+      </dl>
+    </section>
+
+    <section aria-labelledby="db-heading">
+      <h2 id="db-heading" class="text-xl font-semibold">Database</h2>
+      <% if database[:connected] %>
+        <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-database>
+          <dt class="text-base-content/70">Status</dt><dd><span class="badge badge-success badge-sm">Connected</span></dd>
+          <dt class="text-base-content/70">Server</dt><dd><%= database[:adapter] %> <%= database[:server_version] %></dd>
+          <dt class="text-base-content/70">Migrations</dt>
+          <dd>
+            <% if database[:pending_migrations] %>
+              <span class="badge badge-warning badge-sm">Pending: run bin/rails db:migrate</span>
+            <% else %>
+              <span class="badge badge-success badge-sm">Up to date</span>
+            <% end %>
+          </dd>
+        </dl>
+      <% else %>
+        <p class="mt-2" data-database><span class="badge badge-error badge-sm">Not connected</span></p>
+      <% end %>
+    </section>
+  </div>
+
+  <section class="mt-8" aria-labelledby="providers-heading">
+    <h2 id="providers-heading" class="text-xl font-semibold">Sign-in providers</h2>
+    <p class="mt-1 text-sm text-base-content/70">A provider without credentials can't be used to sign in or connect.</p>
+    <table class="table table-sm mt-2 max-w-xl" data-providers>
+      <caption class="sr-only">Provider credentials</caption>
+      <thead><tr><th scope="col">Provider</th><th scope="col">Credentials</th></tr></thead>
+      <tbody>
+        <% @status.providers.each do |provider| %>
+          <tr>
+            <td><%= provider.label %></td>
+            <td>
+              <% if provider.configured %>
+                <span class="badge badge-success badge-sm">Configured</span>
+              <% else %>
+                <span class="badge badge-warning badge-sm">Missing</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="mt-8" aria-labelledby="records-heading">
+    <h2 id="records-heading" class="text-xl font-semibold">Records</h2>
+    <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-records>
+      <% @status.record_counts.each do |label, count| %>
+        <dt class="text-base-content/70"><%= label %></dt><dd><%= count %></dd>
+      <% end %>
+    </dl>
+  </section>
+
+  <section class="mt-8" aria-labelledby="maintenance-heading">
+    <h2 id="maintenance-heading" class="text-xl font-semibold">Maintenance</h2>
+    <p class="mt-1 text-sm text-base-content/70">
+      Clears cached data (the home page's live streams are refetched, and site settings are reloaded). Nobody is signed out.
+    </p>
+    <%= button_to "Clear application cache", clear_cache_admin_system_path, method: :post, class: "btn btn-sm btn-outline mt-2",
+                  form: { data: { turbo_confirm: "Clear the application cache?" } } %>
+  </section>
+</div>

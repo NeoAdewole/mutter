@@ -1,0 +1,116 @@
+<% users = @stats.users %>
+<div class="my-6">
+  <h1 class="text-3xl font-bold">Admin dashboard</h1>
+  <p class="mt-1 text-sm text-base-content/70">A snapshot of who is using Mutter and what has changed lately.</p>
+
+  <section class="mt-6" aria-labelledby="users-heading">
+    <h2 id="users-heading" class="text-xl font-semibold">Users</h2>
+    <dl class="mt-2 grid grid-cols-2 gap-3 tablet:grid-cols-3 laptop:grid-cols-4" data-user-stats>
+      <%
+        cards = [
+          ["Total users", users.total, admin_users_path, "total"],
+          ["New this week", users.new_this_week, admin_users_path(sort: "newest"), "new-week"],
+          ["New this month", users.new_this_month, admin_users_path(sort: "newest"), "new-month"],
+          ["Signed in this week", users.active_this_week, admin_users_path(sort: "recent_sign_in"), "active-week"],
+          ["Admins", users.admins, admin_users_path(role: "admin"), "admins"],
+          ["Suspended", users.suspended, admin_users_path(status: "suspended"), "suspended"],
+          ["Without a real email", users.missing_email, admin_users_path, "missing-email"]
+        ]
+      %>
+      <% cards.each do |label, value, path, key| %>
+        <div class="rounded-box bg-base-200 p-4" data-stat="<%= key %>">
+          <dt class="text-sm text-base-content/70"><%= link_to label, path, class: "link link-hover" %></dt>
+          <dd class="text-3xl font-bold"><%= value %></dd>
+        </div>
+      <% end %>
+    </dl>
+  </section>
+
+  <div class="mt-8 grid gap-8 laptop:grid-cols-2">
+    <section aria-labelledby="signups-heading">
+      <h2 id="signups-heading" class="text-xl font-semibold">Sign-ups, last <%= Admin::DashboardStats::SIGNUP_DAYS %> days</h2>
+      <table class="table table-sm mt-2" data-signups>
+        <caption class="sr-only">New accounts per day</caption>
+        <thead><tr><th scope="col">Day</th><th scope="col">New users</th><th scope="col"><span class="sr-only">Bar</span></th></tr></thead>
+        <tbody>
+          <% @stats.signups_by_day.reverse_each do |day, count| %>
+            <tr>
+              <td><%= day.strftime("%a %-d %b") %></td>
+              <td><%= count %></td>
+              <td class="w-1/2"><progress class="progress progress-primary w-full" value="<%= count %>" max="<%= @stats.busiest_signup_day %>" aria-hidden="true"></progress></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="flex flex-col gap-8">
+      <section aria-labelledby="connections-heading">
+        <h2 id="connections-heading" class="text-xl font-semibold">Linked accounts by service</h2>
+        <% if @stats.connections_by_provider.empty? %>
+          <p class="mt-2 text-sm text-base-content/70">Nobody has linked a provider account yet.</p>
+        <% else %>
+          <table class="table table-sm mt-2" data-connections>
+            <caption class="sr-only">Linked accounts by service</caption>
+            <thead><tr><th scope="col">Service</th><th scope="col">Accounts</th></tr></thead>
+            <tbody>
+              <% @stats.connections_by_provider.each do |label, count| %>
+                <tr><td><%= label %></td><td><%= count %></td></tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% end %>
+      </section>
+
+      <section aria-labelledby="pages-heading">
+        <h2 id="pages-heading" class="text-xl font-semibold">Pages</h2>
+        <table class="table table-sm mt-2" data-pages>
+          <caption class="sr-only">Pages per section</caption>
+          <thead><tr><th scope="col">Section</th><th scope="col">Published</th><th scope="col">Drafts</th></tr></thead>
+          <tbody>
+            <% @stats.pages.each do |row| %>
+              <tr><td><%= row.section.title %></td><td><%= row.published %></td><td><%= row.drafts %></td></tr>
+            <% end %>
+          </tbody>
+        </table>
+        <%= link_to "Manage pages", admin_pages_path, class: "btn btn-sm btn-outline mt-2" %>
+      </section>
+    </div>
+  </div>
+
+  <div class="mt-8 grid gap-8 laptop:grid-cols-2">
+    <section aria-labelledby="recent-users-heading">
+      <h2 id="recent-users-heading" class="text-xl font-semibold">Newest users</h2>
+      <% if @stats.recent_users.empty? %>
+        <p class="mt-2 text-sm text-base-content/70">No users yet.</p>
+      <% else %>
+        <ul class="mt-2 divide-y divide-base-300" data-recent-users>
+          <% @stats.recent_users.each do |user| %>
+            <li class="flex flex-wrap items-center justify-between gap-2 py-2">
+              <span><%= link_to user.username, admin_user_path(user), class: "link font-medium" %> <%= render "admin/users/badges", user: user %></span>
+              <span class="text-xs text-base-content/70">joined <%= admin_ago(user.created_at) %></span>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </section>
+
+    <section aria-labelledby="recent-activity-heading">
+      <h2 id="recent-activity-heading" class="text-xl font-semibold">Recent admin activity</h2>
+      <% if @stats.recent_activity.empty? %>
+        <p class="mt-2 text-sm text-base-content/70">Nothing yet. Actions admins take are recorded here.</p>
+      <% else %>
+        <ul class="mt-2 divide-y divide-base-300" data-recent-activity>
+          <% @stats.recent_activity.each do |entry| %>
+            <li class="py-2 text-sm">
+              <span class="font-medium"><%= entry.actor_label || "Someone" %></span>
+              &middot; <%= entry.summary %><%= " — #{entry.target_label}" if entry.target_label %>
+              <span class="block text-xs text-base-content/70"><%= admin_ago(entry.created_at) %></span>
+            </li>
+          <% end %>
+        </ul>
+        <%= link_to "Full audit log", admin_audit_logs_path, class: "btn btn-sm btn-outline mt-2" %>
+      <% end %>
+    </section>
+  </div>
+</div>

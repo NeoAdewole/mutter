@@ -1,0 +1,42 @@
+<div class="my-6">
+  <p class="text-sm"><%= link_to "← #{@user.username}", admin_user_path(@user), class: "link" %></p>
+  <h1 class="mt-2 text-3xl font-bold">Edit user</h1>
+  <p class="mt-1 text-sm text-base-content/70">
+    Changes are recorded in the audit log. Passwords can't be set here; send the person a reset email instead.
+  </p>
+
+  <%= form_with model: @user, url: admin_user_path(@user), method: :patch, class: "mt-4 flex max-w-xl flex-col gap-4" do |form| %>
+    <% if @user.errors.any? %>
+      <div class="alert alert-error" role="alert" data-form-errors>
+        <div>
+          <p class="font-semibold">This user couldn't be saved:</p>
+          <ul class="list-disc pl-5">
+            <% @user.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
+
+    <div>
+      <%= form.label :username, class: "label font-medium" %>
+      <%= form.text_field :username, class: "input input-bordered w-full", required: true %>
+    </div>
+    <div>
+      <%= form.label :email, class: "label font-medium" %>
+      <%= form.email_field :email, class: "input input-bordered w-full", required: true %>
+    </div>
+    <div>
+      <%= form.label :firstname, "First name", class: "label font-medium" %>
+      <%= form.text_field :firstname, class: "input input-bordered w-full", required: true %>
+    </div>
+    <div>
+      <%= form.label :lastname, "Last name", class: "label font-medium" %>
+      <%= form.text_field :lastname, class: "input input-bordered w-full", required: true %>
+    </div>
+
+    <div class="flex gap-2">
+      <%= form.submit "Save changes", class: "btn btn-primary" %>
+      <%= link_to "Cancel", admin_user_path(@user), class: "btn btn-ghost" %>
+    </div>
+  <% end %>
+</div>

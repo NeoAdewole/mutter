@@ -1,0 +1,50 @@
+<div class="my-6">
+  <h1 class="text-3xl font-bold">Site settings</h1>
+  <p class="mt-1 text-sm text-base-content/70">Changes take effect straight away and are recorded in the audit log.</p>
+
+  <% if SiteSetting.get("maintenance_mode") %>
+    <div class="alert alert-warning mt-4" role="status" data-maintenance-active>
+      Maintenance mode is on: visitors can't use the site right now. You can because you're an admin.
+    </div>
+  <% end %>
+
+  <%= form_with url: admin_settings_path, method: :patch, scope: :settings, class: "mt-4 flex max-w-2xl flex-col gap-8" do |form| %>
+    <% SiteSetting.groups.each do |group, definitions| %>
+      <fieldset class="flex flex-col gap-4">
+        <legend class="text-xl font-semibold"><%= group %></legend>
+        <% definitions.each do |definition| %>
+          <% value = setting_form_value(definition, @submitted) %>
+          <% error = @errors[definition.key] %>
+          <% field_id = "settings_#{definition.key}" %>
+          <div data-setting="<%= definition.key %>">
+            <% if definition.type == :boolean %>
+              <label class="label cursor-pointer justify-start gap-3" for="<%= field_id %>">
+                <%= form.check_box definition.key, { checked: ActiveModel::Type::Boolean.new.cast(value), class: "checkbox", aria: { describedby: "#{field_id}_help" } } %>
+                <span class="font-medium"><%= definition.label %></span>
+              </label>
+            <% else %>
+              <%= form.label definition.key, definition.label, class: "label font-medium" %>
+              <% if definition.type == :integer %>
+                <%= form.number_field definition.key, value: value, min: definition.range.min, max: definition.range.max, class: "input input-bordered w-32",
+                                      aria: { describedby: "#{field_id}_help", invalid: (error ? "true" : nil) } %>
+              <% elsif definition.type == :enum %>
+                <%= form.select definition.key, definition.choices.map { |choice| [choice.capitalize, choice] }, { selected: value }, class: "select select-bordered",
+                                aria: { describedby: "#{field_id}_help" } %>
+              <% else %>
+                <%= form.text_field definition.key, value: value, maxlength: definition.max_length, class: "input input-bordered w-full",
+                                    aria: { describedby: "#{field_id}_help", invalid: (error ? "true" : nil) } %>
+              <% end %>
+            <% end %>
+            <p id="<%= field_id %>_help" class="mt-1 text-xs text-base-content/70"><%= definition.help %></p>
+            <% if error %><p class="mt-1 text-sm text-error" role="alert" data-setting-error><%= definition.label %> <%= error %>.</p><% end %>
+          </div>
+        <% end %>
+      </fieldset>
+    <% end %>
+
+    <div class="flex gap-2">
+      <%= form.submit "Save settings", class: "btn btn-primary" %>
+      <%= link_to "Cancel", admin_settings_path, class: "btn btn-ghost" %>
+    </div>
+  <% end %>
+</div>

@@ -1,4 +1,5 @@
 class OmniauthCallbacksController < ApplicationController
+  skip_before_action :enforce_maintenance_mode # a failed admin sign-in must explain itself
   def twitter
     Rails.logger.info request.env['omniauth.auth'].to_yaml
     logger.info 'Check value of auth...'

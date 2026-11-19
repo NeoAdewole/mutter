@@ -1,0 +1,5 @@
+<%# locals: user %>
+<% if user.admin? %><span class="badge badge-primary badge-sm" data-badge="admin">Admin</span><% end %>
+<% if user.suspended? %><span class="badge badge-error badge-sm" data-badge="suspended">Suspended</span><% end %>
+<% unless user.password_set? %><span class="badge badge-ghost badge-sm" data-badge="no-password">No password</span><% end %>
+<% if user.placeholder_email? %><span class="badge badge-warning badge-sm" data-badge="no-email">No email</span><% end %>

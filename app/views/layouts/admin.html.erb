@@ -1,0 +1,6 @@
+<%# The normal site layout, with the admin section tabs above the page. %>
+<% content_for :admin_body do %>
+  <%= render "admin/shared/nav" %>
+  <%= yield %>
+<% end %>
+<%= render template: "layouts/application" %>

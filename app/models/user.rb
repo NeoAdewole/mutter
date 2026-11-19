@@ -17,6 +17,37 @@ class User < ApplicationRecord
 
   normalizes :email, with: ->(email) { email.strip.downcase }
 
+  include Moderatable
+
+  SORTS = Moderatable::SORTS
+
+  # Accounts without a real email get this placeholder until their owner adds one.
+  PLACEHOLDER_EMAIL_DOMAIN = 'users.mutter.local'.freeze
+
+  # Counted at every successful sign-in, by any method, for the admin's overview.
+  def record_sign_in!
+    update_columns(last_sign_in_at: Time.current, sign_in_count: sign_in_count + 1)
+  end
+
+  def placeholder_email?
+    email.to_s.end_with?("@#{PLACEHOLDER_EMAIL_DOMAIN}")
+  end
+
+  def full_name
+    [firstname, lastname].compact_blank.join(' ')
+  end
+
+  # How this user is named in the audit log (kept even after they are deleted).
+  def audit_label
+    "#{username} <#{email}>"
+  end
+
+  # Could they still sign in if this identity were disconnected? Used so an admin
+  # can't strand an account that only has the one way in.
+  def can_sign_in_without?(identity)
+    password_set? || identities.where.not(id: identity.id).where.not(provider: Identity::CONNECT_ONLY_PROVIDERS).exists?
+  end
+
   def self.find_or_create_from_auth_hash(auth_hash)
     identity = Identity.find_or_create_by(provider: auth_hash.provider, uuid: auth_hash.uid)
     handle = ProviderHandle.for(auth_hash)
@@ -29,6 +60,15 @@ class User < ApplicationRecord
       identity.update(user:, username: handle)
       user
     end
+  end
+
+  # Would signing in with this provider identity reach an account that already
+  # exists (rather than create one)? Used to pause sign-ups without locking out members.
+  def self.account_exists_for?(auth_hash)
+    return true if Identity.exists?(provider: auth_hash.provider, uuid: auth_hash.uid)
+
+    email = auth_hash.info.email.presence
+    email.present? && exists?(email: email)
   end
 
   # The existing account whose email matches, or a brand-new one built from
@@ -60,7 +100,7 @@ class User < ApplicationRecord
     # need a valid, unique one to persist the record, so stand up a
     # placeholder; the controller sends the user straight to their
     # profile to replace it with a real address.
-    user.email ||= "pending-#{SecureRandom.hex(8)}@users.mutter.local"
+    user.email ||= "pending-#{SecureRandom.hex(8)}@#{PLACEHOLDER_EMAIL_DOMAIN}"
   end
 
   def self.assign_generated_password(user)

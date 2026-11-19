@@ -1,6 +1,7 @@
 class RegistrationsController < ApplicationController
   before_action :authenticate_user!, only: %i[edit update destroy]
   before_action :set_user_and_identities, only: %i[edit update]
+  before_action :require_signups_open, only: %i[new create]
 
   def create
     auth_hash = request.env['omniauth.auth']
@@ -35,6 +36,12 @@ class RegistrationsController < ApplicationController
   end
 
   private
+
+  def require_signups_open
+    return if SiteSetting.get('signups_enabled')
+
+    redirect_to new_session_path, alert: 'New sign-ups are paused right now. If you already have an account, log in below.'
+  end
 
   def set_user_and_identities
     @user = current_user

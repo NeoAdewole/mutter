@@ -1,16 +1,38 @@
 class ApplicationController < ActionController::Base
   before_action :set_current_user
+  before_action :enforce_maintenance_mode
 
   def set_current_user
     return unless session[:user_id]
 
-    Current.user = User.find_by(id: session[:user_id])
+    user = User.find_by(id: session[:user_id])
+    if user&.suspended?
+      # An admin suspended this account while it was signed in: end the session now,
+      # not when it would have expired.
+      reset_session
+      flash[:alert] = 'This account has been suspended. Contact a site admin if you think that is a mistake.'
+    else
+      Current.user = user
+    end
   end
 
   private
 
+  # While maintenance mode is on, only admins get through. The sign-in screens
+  # opt out (skip_before_action) so an admin can still log in to turn it off.
+  def enforce_maintenance_mode
+    return unless SiteSetting.get('maintenance_mode')
+    return if admin_signed_in?
+
+    response.set_header('Retry-After', '3600')
+    render 'maintenance/show', status: :service_unavailable, layout: 'bare'
+  end
+
   def authenticate_user!
-    redirect_to new_session_path, alert: 'You must be logged in to do that.' unless user_signed_in?
+    return if user_signed_in?
+
+    # Keep a more specific message (such as "your account was suspended") if one was just set.
+    redirect_to new_session_path, alert: flash[:alert].presence || 'You must be logged in to do that.'
   end
 
   def current_user
@@ -18,8 +40,9 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user
 
+  # A suspended account is never "signed in", whatever the session says.
   def authenticate_user_from_session
-    User.find_by(id: session[:user_id])
+    User.active.find_by(id: session[:user_id])
   end
 
   def user_signed_in?
@@ -41,6 +64,7 @@ class ApplicationController < ActionController::Base
     Current.user = user
     reset_session
     session[:user_id] = user.id
+    user.record_sign_in!
   end
 
   def logout(_user)

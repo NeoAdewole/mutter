@@ -1,4 +1,5 @@
 class PasswordResetsController < ApplicationController
+  skip_before_action :enforce_maintenance_mode # an admin locked out during maintenance still needs this
   def new; end
 
   def create
