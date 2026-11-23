@@ -1,0 +1,29 @@
+<%# One card of a row. Anything the card leaves blank comes from the page it features. Locals: card (BlockItem). %>
+<% hidden = card.hidden_from_visitors? %>
+<div class="category card h-full bg-base-300 shadow-sm <%= 'border border-dashed border-warning' if hidden %>"
+     data-card
+     <%= 'data-hidden-from-visitors' if hidden %>>
+  <% if card.image_url.present? %>
+    <figure>
+      <%= image_tag card.image_url, alt: card.image_alt, loading: "lazy", class: "w-full object-cover" %>
+    </figure>
+  <% end %>
+  <div class="card-body">
+    <% if hidden %>
+      <span class="badge badge-warning badge-sm" role="status">Hidden from visitors: the featured page is a draft</span>
+    <% end %>
+    <% if card.shown_title.present? %>
+      <h3 class="card-title"><%= card.shown_title %></h3>
+    <% end %>
+    <% if card.shown_body_html.present? %>
+      <div class="cms-body text-sm"><%= card.shown_body_html %></div>
+    <% end %>
+    <% if card.href.present? %>
+      <div class="card-actions mt-auto justify-end pt-2">
+        <%= link_to card.button_label, card.href, class: "btn btn-primary",
+                    rel: ("noopener noreferrer" if card.external?),
+                    aria: { label: "#{card.button_label}: #{card.shown_title.presence || card.href}" } %>
+      </div>
+    <% end %>
+  </div>
+</div>

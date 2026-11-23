@@ -1,11 +1,9 @@
 <%# Image carousel: Tailwind utilities for styling, app/javascript/controllers/carousel_controller.js for behavior.
-    Pass `slides: [{ src:, alt: }, ...]` to override the default banners, and `streams: [Twitch::Stream, ...]`
-    to put live Twitch streams ahead of them. %>
+    Pass `slides: [{ src:, alt:, href: (optional link) }, ...]` and `streams: [Twitch::Stream, ...]` to put live
+    Twitch streams ahead of them. The slides come from a page's carousel block (see PageBlocksHelper). %>
 <%
     streams = local_assigns.fetch(:streams, [])
-    slides = local_assigns.fetch(:slides) do
-      (1..4).map { |n| { src: "https://picsum.photos/1500/500?text=Banner+#{n}", alt: "Banner #{n}" } }
-    end
+    slides = local_assigns.fetch(:slides, [])
     total = streams.size + slides.size
 %>
 <section class="w-full" data-controller="carousel" aria-roledescription="carousel" aria-label="Featured banners">
@@ -28,7 +26,12 @@
           data-carousel-target="slide"
         >
           <%# h-full/object-cover: when a taller live-stream slide sets the row height (small screens), banners fill it. %>
-          <%= image_tag slide[:src], alt: slide[:alt], class: "h-full w-full object-cover" %>
+          <% banner = image_tag(slide[:src], alt: slide[:alt], class: "h-full w-full object-cover") %>
+          <% if slide[:href].present? %>
+            <%= link_to banner, slide[:href], class: "block h-full w-full", data: { slide_link: true } %>
+          <% else %>
+            <%= banner %>
+          <% end %>
         </div>
       <% end %>
     </div>

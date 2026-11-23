@@ -92,14 +92,15 @@ RSpec.describe 'Admin pages', type: :request do
   describe 'POST /admin/pages' do
     let(:valid) { { section: 'content', title: 'Getting Started', body: '# Hello', published: '0' } }
 
-    it 'creates a draft, generating the slug, and goes back to the list' do
+    it 'creates a draft, generating the slug, and opens it so blocks can be added' do
       expect { post admin_pages_path, params: { page: valid } }.to change(Page, :count).by(1)
 
       page = Page.last
       expect(page).to have_attributes(section: 'content', title: 'Getting Started', slug: 'getting-started', published: false)
-      expect(response).to redirect_to(admin_pages_path)
+      expect(response).to redirect_to(edit_admin_page_path(page))
       follow_redirect!
       expect(response.body).to include('Page created')
+      expect(html.css("form[action='#{admin_page_blocks_path(page)}']")).not_to be_empty
     end
 
     it 'can create a published page directly' do

@@ -1,0 +1,14 @@
+<div>
+  <%= form.label :heading, "Heading (optional)", class: "label font-medium" %>
+  <%= form.text_field :heading, class: "input input-bordered w-full", maxlength: 120 %>
+</div>
+
+<div class="flex flex-col">
+  <%= form.label :columns, "Columns", class: "label font-medium" %>
+  <%= form.select :columns, PageBlock::COLUMNS.map { |n| [n == 1 ? "1 column" : "#{n} columns", n] }, {},
+                  class: "select select-bordered w-full max-w-xs", aria: { describedby: "columns-help" } %>
+  <p id="columns-help" class="mt-1 text-xs text-base-content/70">
+    How many cards sit side by side on a wide screen. Tablets show at most 2 and phones show 1, so cards never get too narrow.
+    More cards than columns wrap onto the next line.
+  </p>
+</div>

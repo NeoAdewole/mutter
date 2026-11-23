@@ -28,7 +28,7 @@ class Page < ApplicationRecord
       # only, in order. A published page beneath a draft is left out (it isn't
       # reachable publicly either). One query, however large the tree.
       def navigation
-        by_parent = published.ordered.group_by(&:parent_id)
+        by_parent = in_sections.published.ordered.group_by(&:parent_id)
         build = lambda do |pages|
           pages.map { |page| NavNode.new(page, build.call(by_parent.fetch(page.id, []))) }
         end
@@ -80,6 +80,8 @@ class Page < ApplicationRecord
     end
 
     def public_path
+      return site_path if site_page?
+
       "/#{section}/#{(ancestors + [self]).map(&:slug).join('/')}"
     end
 

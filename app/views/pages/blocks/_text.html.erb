@@ -1,0 +1,10 @@
+<% if block.heading.present? || block.body.present? %>
+  <section class="my-6 max-w-3xl" data-block="text">
+    <% if block.heading.present? %>
+      <h2 class="text-2xl font-semibold"><%= block.heading %></h2>
+    <% end %>
+    <% if block.body.present? %>
+      <div class="cms-body <%= 'mt-3' if block.heading.present? %>"><%= MarkdownRenderer.call(block.body) %></div>
+    <% end %>
+  </section>
+<% end %>

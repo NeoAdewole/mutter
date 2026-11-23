@@ -29,6 +29,15 @@ Rails.application.routes.draw do
         patch :unpublish
         patch :move
       end
+      resources :blocks, only: :create
+    end
+    # A page's blocks, and the slides / cards inside them (see PageBlock and BlockItem).
+    resources :blocks, only: %i[edit update destroy] do
+      member { patch :move }
+      resources :items, controller: 'block_items', only: %i[new create]
+    end
+    resources :items, controller: 'block_items', only: %i[edit update destroy] do
+      member { patch :move }
     end
     resources :users, only: %i[index show edit update destroy] do
       member do

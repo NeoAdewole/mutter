@@ -1,3 +1,5 @@
 class AboutController < ApplicationController
-  def index; end
+  def index
+    @page = SitePages.page('about')
+  end
 end

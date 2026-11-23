@@ -104,4 +104,16 @@ RSpec.describe MarkdownRenderer do
       expect(render('1 < 2 and `<script>`')).not_to include('<script>')
     end
   end
+
+  describe '.plain_text' do
+    it 'keeps the words and drops the formatting, on one line' do
+      expect(described_class.plain_text("## Title\n\nSome **bold** and [a link](https://example.com).\n\n- one\n- two"))
+        .to eq('Title Some bold and a link. one two')
+    end
+
+    it 'gives nothing for nothing, and never any markup' do
+      expect(described_class.plain_text(nil)).to eq('')
+      expect(described_class.plain_text('<script>alert(1)</script> text')).not_to include('<')
+    end
+  end
 end

@@ -1,0 +1,62 @@
+<%# The page editor's list of blocks, with controls to add, reorder, edit and remove them. Locals: page (saved). %>
+<% blocks = page.blocks.includes(:items).to_a %>
+<section class="mt-12 max-w-3xl" aria-labelledby="blocks-heading" data-blocks-panel>
+  <h2 id="blocks-heading" class="text-2xl font-semibold">Blocks</h2>
+  <p class="mt-1 text-sm text-base-content/70">
+    After the main text above, the page shows its blocks from top to bottom. Add a carousel, a row of cards or more text,
+    and use the arrows to change the order. Blocks are saved as you add and edit them; they are separate from the form above.
+  </p>
+
+  <% if blocks.empty? %>
+    <p class="mt-4 text-sm" data-no-blocks>No blocks yet. Add one below.</p>
+  <% else %>
+    <ol class="mt-4 flex flex-col gap-3">
+      <% blocks.each_with_index do |block, index| %>
+        <% name = "#{block.label.downcase} #{index + 1}" %>
+        <li class="rounded-box border border-base-300 bg-base-200 p-3" data-block-id="<%= block.id %>" data-kind="<%= block.kind %>">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="min-w-0">
+              <span class="badge badge-outline"><%= block.label %></span>
+              <% if block.heading.present? %>
+                <span class="ml-1 font-medium"><%= block.heading %></span>
+              <% end %>
+              <p class="mt-1 break-words text-sm text-base-content/70" data-summary><%= block.summary %></p>
+            </div>
+            <div class="flex flex-wrap items-center gap-1">
+              <% unless index.zero? %>
+                <%= form_with url: move_admin_block_path(block), method: :patch, class: "inline" do %>
+                  <button type="submit" name="direction" value="up" class="btn btn-xs btn-ghost" aria-label="Move <%= name %> up">&uarr;</button>
+                <% end %>
+              <% end %>
+              <% unless index == blocks.size - 1 %>
+                <%= form_with url: move_admin_block_path(block), method: :patch, class: "inline" do %>
+                  <button type="submit" name="direction" value="down" class="btn btn-xs btn-ghost" aria-label="Move <%= name %> down">&darr;</button>
+                <% end %>
+              <% end %>
+              <%= link_to "Edit", edit_admin_block_path(block), class: "btn btn-xs btn-outline", aria: { label: "Edit #{name}" } %>
+              <%= button_to "Remove", admin_block_path(block), method: :delete, class: "btn btn-xs btn-error btn-outline",
+                            form: { class: "inline", data: { turbo_confirm: "Remove this #{block.label.downcase} and everything in it? This can't be undone." } },
+                            aria: { label: "Remove #{name}" } %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
+
+  <% if blocks.size < PageBlock::MAX_PER_PAGE %>
+    <h3 class="mt-6 font-medium">Add a block</h3>
+    <ul class="mt-2 grid gap-3 tablet:grid-cols-3">
+      <% PageBlock::KINDS.each do |kind, info| %>
+        <li class="flex flex-col rounded-box border border-base-300 p-3">
+          <p class="font-medium"><%= info[:label] %></p>
+          <p class="mt-1 flex-1 text-xs text-base-content/70"><%= info[:help] %></p>
+          <%= button_to "Add #{info[:label].downcase}", admin_page_blocks_path(page), params: { kind: kind }, method: :post,
+                        class: "btn btn-sm btn-outline mt-3", form: { class: "block" } %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="mt-4 text-sm">This page has the most blocks it can hold (<%= PageBlock::MAX_PER_PAGE %>).</p>
+  <% end %>
+</section>

@@ -17,6 +17,10 @@ class AuditLog < ApplicationRecord
     'page.unpublished' => 'Unpublished a page',
     'page.moved' => 'Reordered a page',
     'page.deleted' => 'Deleted a page',
+    'page.block_added' => 'Added a block to a page',
+    'page.block_updated' => 'Edited a block on a page',
+    'page.block_moved' => "Reordered a page's blocks",
+    'page.block_removed' => 'Removed a block from a page',
     'settings.updated' => 'Changed site settings',
     'system.cache_cleared' => 'Cleared the application cache'
   }.freeze

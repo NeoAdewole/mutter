@@ -1,0 +1,10 @@
+<div class="form-control">
+  <label class="label cursor-pointer justify-start gap-3">
+    <%= form.check_box :show_live_streams, class: "checkbox", aria: { describedby: "streams-help" } %>
+    <span>Show live streams from members first</span>
+  </label>
+  <p id="streams-help" class="text-xs text-base-content/70">
+    When members who connected Twitch are live, their streams come before the slides. Admins can switch this off for the whole
+    site, or limit how many are shown, in <%= link_to "Settings", admin_settings_path, class: "link" %>.
+  </p>
+</div>

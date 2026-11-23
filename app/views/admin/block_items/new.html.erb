@@ -1,0 +1,6 @@
+<div class="my-6">
+  <%= link_to "← Back to the #{@block.label.downcase}", edit_admin_block_path(@block), class: "link link-hover text-sm" %>
+  <h1 class="mt-2 text-3xl font-bold">Add a <%= @block.item_name %></h1>
+  <p class="mt-1 text-sm text-base-content/70">On <%= @block.page.title %>.</p>
+  <%= render "form", item: @item, block: @block %>
+</div>

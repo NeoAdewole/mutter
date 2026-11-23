@@ -158,7 +158,7 @@ RSpec.describe 'Site navigation', type: :request do
     it 'link to each section' do
       get root_path
       Section.all.each do |section|
-        link = html.at_css("#offers a[href='#{section.path}']")
+        link = html.at_css("[data-block='cards'] a[href='#{section.path}']")
         expect(link).to be_present, "no home card link to #{section.path}"
         expect(link['aria-label'] || link.text).to include(section.title)
       end

@@ -25,7 +25,7 @@ class SiteSetting
                      help: 'Info is blue, success green, warning amber, error red.'),
       Definition.new(key: 'homepage_streams_enabled', type: :boolean, default: true, group: 'Home page',
                      label: 'Show live streams on the home page',
-                     help: 'Live Twitch streams from members appear in the carousel. Members can still opt out individually.'),
+                     help: 'Live Twitch streams from members appear first in any carousel set to show them (the Home page carousel is by default). Members can still opt out individually.'),
       Definition.new(key: 'homepage_streams_limit', type: :integer, default: 5, group: 'Home page', range: 1..10,
                      label: 'Most streams to show',
                      help: 'The busiest streams (by current viewers) are shown first. Between 1 and 10.')

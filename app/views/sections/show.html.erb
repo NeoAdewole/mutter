@@ -1,12 +1,12 @@
-<div class="my-6 max-w-3xl">
-  <h1 class="text-3xl font-bold"><%= @section.title %></h1>
-  <p class="mt-2 text-base-content/70"><%= @section.blurb %></p>
-
-  <% if admin_signed_in? %>
-    <%= link_to "Add a page to #{@section.title}", new_admin_page_path(section: @section.key), class: "btn btn-sm btn-outline mt-3" %>
+<%# A section's landing page is a site page (title, text and blocks are edited in Admin > Pages),
+    followed by the menu of that section's built-in features and published pages. %>
+<div class="my-6">
+  <% add_page_button = capture do %>
+    <%= link_to "Add a page to #{@section.title}", new_admin_page_path(section: @section.key), class: "btn btn-sm btn-outline" %>
   <% end %>
+  <%= render "pages/content", page: @page, actions: add_page_button %>
 
-  <div data-section-pages class="mt-6">
+  <div data-section-pages class="mt-6 max-w-3xl">
     <ul class="menu w-full rounded-box bg-base-200" aria-label="<%= @section.title %> pages">
       <%= render "shared/nav_items", section: @section %>
     </ul>

@@ -1,8 +1,11 @@
 module Admin
   class PagesController < BaseController
     before_action :set_page, only: %i[edit update destroy publish unpublish move]
+    # Home, About and the landing pages can be edited, but not removed from the site.
+    before_action :refuse_for_site_page, only: %i[destroy publish unpublish move]
 
     def index
+      @site_pages = SitePages.all
       @rows_by_section = Section.all.index_with { |section| Page.rows_for(section.key) }
     end
 
@@ -14,7 +17,7 @@ module Admin
       @page = Page.new(create_params)
       if @page.save
         audit 'page.created', target: @page, details: { published: @page.published? }
-        redirect_to admin_pages_path, notice: "Page created: #{@page.title}."
+        redirect_to edit_admin_page_path(@page), notice: "Page created: #{@page.title}. You can add blocks to it below."
       else
         render :new, status: :unprocessable_entity
       end
@@ -70,17 +73,27 @@ module Admin
       @page = Page.find(params[:id])
     end
 
+    def refuse_for_site_page
+      return unless @page.site_page?
+
+      redirect_to admin_pages_path, alert: "“#{@page.title}” is part of the site's structure, so it can be edited but not " \
+                                           'moved, unpublished or deleted.'
+    end
+
     def requested_section
       Section.find(params[:section])&.key || Section.all.first.key
     end
 
     # The section is chosen once, when the page is created.
     def create_params
-      params.require(:page).permit(:section, :title, :slug, :body, :parent_id, :published)
+      params.require(:page).permit(:section, :title, :slug, :body, :parent_id, :published, :show_title)
     end
 
+    # Site pages keep their address, place and published state; only their content changes.
     def update_params
-      params.require(:page).permit(:title, :slug, :body, :parent_id, :published)
+      allowed = %i[title body show_title]
+      allowed += %i[slug parent_id published] unless @page.site_page?
+      params.require(:page).permit(*allowed)
     end
 
     # A page body can be long and is not worth copying into the log; record that it

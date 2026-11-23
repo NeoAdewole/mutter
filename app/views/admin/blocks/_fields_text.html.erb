@@ -1,0 +1,13 @@
+<div>
+  <%= form.label :heading, "Heading (optional)", class: "label font-medium" %>
+  <%= form.text_field :heading, class: "input input-bordered w-full", maxlength: 120 %>
+</div>
+
+<div>
+  <%= form.label :body, "Text (Markdown)", class: "label font-medium" %>
+  <%= form.text_area :body, rows: 12, class: "textarea textarea-bordered w-full font-mono text-sm", aria: { describedby: "text-help" } %>
+  <p id="text-help" class="mt-1 text-xs text-base-content/70">
+    Markdown: <code>**bold**</code>, <code>*italic*</code>, <code>[link](https://…)</code>, lists and <code>## Headings</code>.
+    Raw HTML, scripts and styles are removed for safety.
+  </p>
+</div>

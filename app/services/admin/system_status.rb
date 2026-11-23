@@ -43,7 +43,8 @@ module Admin
       {
         'Users' => User.count,
         'Linked accounts' => Identity.count,
-        'Pages' => Page.count,
+        'Pages' => Page.in_sections.count,
+        'Site pages' => Page.site_pages.count,
         'Audit log entries' => AuditLog.count
       }
     end

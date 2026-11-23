@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 20_261_118_100_200) do
+ActiveRecord::Schema[7.2].define(version: 20_261_118_110_200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
@@ -30,6 +30,23 @@ ActiveRecord::Schema[7.2].define(version: 20_261_118_100_200) do
     t.index %w[target_type target_id], name: 'index_audit_logs_on_target_type_and_target_id'
   end
 
+  create_table 'block_items', force: :cascade do |t|
+    t.bigint 'page_block_id', null: false
+    t.bigint 'featured_page_id'
+    t.integer 'position', default: 0, null: false
+    t.string 'title', default: '', null: false
+    t.text 'body', default: '', null: false
+    t.string 'image_url', default: '', null: false
+    t.string 'alt_text', default: '', null: false
+    t.string 'link_label', default: '', null: false
+    t.string 'link_url', default: '', null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['featured_page_id'], name: 'index_block_items_on_featured_page_id'
+    t.index %w[page_block_id position], name: 'index_block_items_on_page_block_id_and_position'
+    t.index ['page_block_id'], name: 'index_block_items_on_page_block_id'
+  end
+
   create_table 'identities', force: :cascade do |t|
     t.bigint 'user_id', null: false
     t.string 'provider'
@@ -40,8 +57,22 @@ ActiveRecord::Schema[7.2].define(version: 20_261_118_100_200) do
     t.index ['user_id'], name: 'index_identities_on_user_id'
   end
 
+  create_table 'page_blocks', force: :cascade do |t|
+    t.bigint 'page_id', null: false
+    t.string 'kind', null: false
+    t.integer 'position', default: 0, null: false
+    t.string 'heading', default: '', null: false
+    t.text 'body', default: '', null: false
+    t.integer 'columns', default: 3, null: false
+    t.boolean 'show_live_streams', default: false, null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index %w[page_id position], name: 'index_page_blocks_on_page_id_and_position'
+    t.index ['page_id'], name: 'index_page_blocks_on_page_id'
+  end
+
   create_table 'pages', force: :cascade do |t|
-    t.string 'section', null: false
+    t.string 'section'
     t.bigint 'parent_id'
     t.string 'title', null: false
     t.string 'slug', null: false
@@ -50,10 +81,14 @@ ActiveRecord::Schema[7.2].define(version: 20_261_118_100_200) do
     t.boolean 'published', default: false, null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.string 'system_key'
+    t.boolean 'show_title', default: true, null: false
     t.index ['parent_id'], name: 'index_pages_on_parent_id'
     t.index %w[section parent_id position], name: 'index_pages_on_ordering'
     t.index %w[section parent_id slug], name: 'index_pages_on_siblings_slug', unique: true
     t.index %w[section slug], name: 'index_pages_on_top_level_slug', unique: true, where: '(parent_id IS NULL)'
+    t.index ['system_key'], name: 'index_pages_on_system_key', unique: true
+    t.check_constraint 'section IS NOT NULL OR system_key IS NOT NULL', name: 'pages_belong_somewhere'
   end
 
   create_table 'site_settings', force: :cascade do |t|
@@ -108,7 +143,10 @@ ActiveRecord::Schema[7.2].define(version: 20_261_118_100_200) do
   end
 
   add_foreign_key 'audit_logs', 'users', column: 'actor_id', on_delete: :nullify
+  add_foreign_key 'block_items', 'page_blocks', on_delete: :cascade
+  add_foreign_key 'block_items', 'pages', column: 'featured_page_id', on_delete: :nullify
   add_foreign_key 'identities', 'users'
+  add_foreign_key 'page_blocks', 'pages', on_delete: :cascade
   add_foreign_key 'pages', 'pages', column: 'parent_id'
   add_foreign_key 'tweets', 'twitter_accounts'
   add_foreign_key 'tweets', 'users'

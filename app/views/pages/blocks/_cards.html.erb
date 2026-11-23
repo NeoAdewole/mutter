@@ -1,0 +1,13 @@
+<% cards = visible_cards(block) %>
+<% if cards.any? %>
+  <section class="my-6" data-block="cards" data-columns="<%= block.columns %>" <%= %(aria-labelledby="block-#{block.id}-heading").html_safe if block.heading.present? %>>
+    <% if block.heading.present? %>
+      <h2 id="block-<%= block.id %>-heading" class="mb-3 text-2xl font-semibold"><%= block.heading %></h2>
+    <% end %>
+    <div class="grid gap-4 <%= card_grid_classes(block.columns) %>">
+      <% cards.each do |card| %>
+        <%= render "pages/blocks/card", card: card %>
+      <% end %>
+    </div>
+  </section>
+<% end %>

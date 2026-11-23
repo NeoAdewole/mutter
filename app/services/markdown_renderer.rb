@@ -26,6 +26,12 @@ class MarkdownRenderer
     new.call(markdown)
   end
 
+  # The words of some Markdown with the formatting taken out, on one line. For teasers
+  # and summaries; the result is plain text (escape it when it goes into HTML).
+  def self.plain_text(markdown)
+    Nokogiri::HTML5.fragment(call(markdown)).text.squish
+  end
+
   def call(markdown)
     return ''.html_safe if markdown.to_s.strip.empty?
 

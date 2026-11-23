@@ -6,6 +6,10 @@ require 'rails_helper'
 RSpec.describe 'Admin authorization', type: :request do
   let!(:target) { create(:page, :draft, section: 'content', title: 'Target', slug: 'target') }
   let!(:sibling) { create(:page, :draft, section: 'content', title: 'Sibling', slug: 'sibling') }
+  let!(:block) { create(:page_block, :cards, page: target) }
+  let!(:other_block) { create(:page_block, :text, page: target) }
+  let!(:item) { create(:block_item, block: block, title: 'First card') }
+  let!(:other_item) { create(:block_item, block: block, title: 'Second card') }
   let!(:subject_user) { create(:user, username: 'subject') }
   let!(:subject_identity) { create(:identity, user: subject_user, provider: 'github', uuid: 'subject-gh') }
 
@@ -21,6 +25,15 @@ RSpec.describe 'Admin authorization', type: :request do
       'admin/pages#publish' => [:patch, -> { publish_admin_page_path(target) }, {}],
       'admin/pages#unpublish' => [:patch, -> { unpublish_admin_page_path(target) }, {}],
       'admin/pages#move' => [:patch, -> { move_admin_page_path(sibling) }, { direction: 'up' }],
+      'admin/blocks#create' => [:post, -> { admin_page_blocks_path(target) }, { kind: 'text' }],
+      'admin/blocks#edit' => [:get, -> { edit_admin_block_path(block) }, {}],
+      'admin/blocks#update' => [:patch, -> { admin_block_path(block) }, { page_block: { columns: 2 } }],
+      'admin/blocks#move' => [:patch, -> { move_admin_block_path(block) }, { direction: 'down' }],
+      'admin/block_items#new' => [:get, -> { new_admin_block_item_path(block) }, {}],
+      'admin/block_items#create' => [:post, -> { admin_block_items_path(block) }, { block_item: { title: 'New card' } }],
+      'admin/block_items#edit' => [:get, -> { edit_admin_item_path(item) }, {}],
+      'admin/block_items#update' => [:patch, -> { admin_item_path(item) }, { block_item: { title: 'Changed' } }],
+      'admin/block_items#move' => [:patch, -> { move_admin_item_path(item) }, { direction: 'down' }],
       'admin/users#index' => [:get, -> { admin_users_path }, {}],
       'admin/users#show' => [:get, -> { admin_user_path(subject_user) }, {}],
       'admin/users#edit' => [:get, -> { edit_admin_user_path(subject_user) }, {}],
@@ -38,6 +51,8 @@ RSpec.describe 'Admin authorization', type: :request do
       'admin/system#clear_cache' => [:post, -> { clear_cache_admin_system_path }, {}],
       # Last: these remove records the other endpoints act on.
       'admin/users#destroy' => [:delete, -> { admin_user_path(subject_user) }, {}],
+      'admin/block_items#destroy' => [:delete, -> { admin_item_path(item) }, {}],
+      'admin/blocks#destroy' => [:delete, -> { admin_block_path(block) }, {}],
       'admin/pages#destroy' => [:delete, -> { admin_page_path(target) }, {}]
     }
   end
@@ -51,6 +66,8 @@ RSpec.describe 'Admin authorization', type: :request do
   def snapshot
     [
       Page.order(:id).pluck(:id, :title, :published, :position, :body),
+      PageBlock.order(:id).pluck(:id, :kind, :position, :columns, :heading, :body),
+      BlockItem.order(:id).pluck(:id, :page_block_id, :position, :title),
       User.order(:id).pluck(:id, :username, :firstname, :admin, :suspended_at),
       Identity.count,
       AuditLog.count,

@@ -36,7 +36,23 @@ module AdminHelper
     submitted.key?(definition.key) ? submitted[definition.key] : SiteSetting.get(definition.key)
   end
 
+  # Every page a card could feature, grouped for a <select>: the site pages first, then each
+  # section's pages in menu order, indented by depth. Drafts are marked, since a card that
+  # features one is hidden from visitors until it is published.
+  def featurable_page_options
+    site = SitePages.all.map { |page| ["#{page.title} (#{page.public_path})", page.id] }
+    sections = Section.all.filter_map do |section|
+      rows = Page.rows_for(section.key)
+      [section.title, rows.map { |row| [featurable_label(row), row.page.id] }] if rows.any?
+    end
+    [['Site pages', site]] + sections
+  end
+
   private
+
+  def featurable_label(row)
+    "#{'— ' * (row.depth - 1)}#{row.page.title}#{' (draft)' unless row.page.publicly_visible?}"
+  end
 
   def describe_change(field, change)
     label = SiteSetting::DEFINITIONS.key?(field) ? setting_label(field) : field.to_s.humanize.downcase

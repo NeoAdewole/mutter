@@ -1,0 +1,55 @@
+<%# The slides of a carousel / cards of a row, with controls. Locals: block. %>
+<% items = block.items.includes(:featured_page).to_a %>
+<% noun = block.item_name %>
+<section class="mt-12" aria-labelledby="items-heading" data-items-panel>
+  <h2 id="items-heading" class="text-2xl font-semibold"><%= noun.capitalize.pluralize %></h2>
+
+  <% if items.empty? %>
+    <p class="mt-2 text-sm" data-no-items>No <%= noun.pluralize %> yet.</p>
+  <% else %>
+    <ol class="mt-3 flex flex-col gap-3">
+      <% items.each_with_index do |item, index| %>
+        <li class="flex flex-wrap items-center justify-between gap-3 rounded-box border border-base-300 bg-base-200 p-3" data-item-id="<%= item.id %>">
+          <div class="flex min-w-0 items-center gap-3">
+            <% if item.image_url.present? %>
+              <%# Decorative here: the name beside it says what it is. %>
+              <%= image_tag item.image_url, alt: "", loading: "lazy", class: "h-12 w-20 shrink-0 rounded object-cover" %>
+            <% end %>
+            <div class="min-w-0">
+              <p class="truncate font-medium" data-item-label><%= item.label %></p>
+              <% if item.featured_page %>
+                <p class="truncate text-xs text-base-content/70" data-featured>
+                  Features “<%= item.featured_page.title %>”<%= " (draft: hidden from visitors until published)" unless item.featured_page.publicly_visible? %>
+                </p>
+              <% elsif item.link_url.present? %>
+                <p class="truncate text-xs text-base-content/70">Links to <%= item.link_url %></p>
+              <% end %>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-1">
+            <% unless index.zero? %>
+              <%= form_with url: move_admin_item_path(item), method: :patch, class: "inline" do %>
+                <button type="submit" name="direction" value="up" class="btn btn-xs btn-ghost" aria-label="Move <%= noun %> <%= index + 1 %> up">&uarr;</button>
+              <% end %>
+            <% end %>
+            <% unless index == items.size - 1 %>
+              <%= form_with url: move_admin_item_path(item), method: :patch, class: "inline" do %>
+                <button type="submit" name="direction" value="down" class="btn btn-xs btn-ghost" aria-label="Move <%= noun %> <%= index + 1 %> down">&darr;</button>
+              <% end %>
+            <% end %>
+            <%= link_to "Edit", edit_admin_item_path(item), class: "btn btn-xs btn-outline", aria: { label: "Edit #{noun} #{index + 1}" } %>
+            <%= button_to "Remove", admin_item_path(item), method: :delete, class: "btn btn-xs btn-error btn-outline",
+                          form: { class: "inline", data: { turbo_confirm: "Remove this #{noun}? This can't be undone." } },
+                          aria: { label: "Remove #{noun} #{index + 1}" } %>
+          </div>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
+
+  <% if block.room_for_item? %>
+    <%= link_to "Add a #{noun}", new_admin_block_item_path(block), class: "btn btn-sm btn-primary mt-4" %>
+  <% else %>
+    <p class="mt-4 text-sm">This <%= block.label.downcase %> has the most <%= noun.pluralize %> it can hold (<%= PageBlock::MAX_ITEMS %>).</p>
+  <% end %>
+</section>

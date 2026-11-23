@@ -1,0 +1,68 @@
+<%# Form for one slide or card. Locals: item, block. %>
+<% url = item.new_record? ? admin_block_items_path(block) : admin_item_path(item) %>
+<%= form_with model: item, url: url, method: (item.new_record? ? :post : :patch), class: "mt-4 flex max-w-3xl flex-col gap-4" do |form| %>
+  <%= render "admin/shared/form_errors", record: item, heading: "This #{block.item_name} couldn't be saved:" %>
+
+  <% if block.kind == "cards" %>
+    <div>
+      <%= form.label :featured_page_id, "Feature a page", class: "label font-medium" %>
+      <%= form.select :featured_page_id, grouped_options_for_select(featurable_page_options, item.featured_page_id),
+                      { include_blank: "None: a custom card" }, class: "select select-bordered w-full", aria: { describedby: "featured-help" } %>
+      <p id="featured-help" class="mt-1 text-xs text-base-content/70">
+        The card links to the page. Anything you leave blank below is taken from the page: the title, and the start of its text.
+        Anything you fill in replaces it. A card featuring a draft is hidden from visitors until that page is published.
+      </p>
+    </div>
+
+    <div>
+      <%= form.label :title, "Title", class: "label font-medium" %>
+      <%= form.text_field :title, class: "input input-bordered w-full", maxlength: 120 %>
+    </div>
+
+    <div>
+      <%= form.label :body, "Text (Markdown)", class: "label font-medium" %>
+      <%= form.text_area :body, rows: 4, class: "textarea textarea-bordered w-full text-sm", maxlength: 1000, aria: { describedby: "card-text-help" } %>
+      <p id="card-text-help" class="mt-1 text-xs text-base-content/70">Up to 1000 characters. <code>**bold**</code>, <code>*italic*</code> and <code>[links](https://…)</code> work.</p>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :image_url, block.kind == "cards" ? "Image address (optional)" : "Image address", class: "label font-medium" %>
+    <%= form.text_field :image_url, class: "input input-bordered w-full font-mono text-sm", required: block.kind == "carousel",
+                        placeholder: "https://…", inputmode: "url", aria: { describedby: "image-help" } %>
+    <p id="image-help" class="mt-1 text-xs text-base-content/70">
+      The web address of an image (starting <code>https://</code>). Wide images work best for a carousel
+      (about 3 times as wide as tall); cards show a 16:9-ish picture.
+    </p>
+  </div>
+
+  <div>
+    <%= form.label :alt_text, block.kind == "carousel" ? "Describe the image" : "Describe the image (optional)", class: "label font-medium" %>
+    <%= form.text_field :alt_text, class: "input input-bordered w-full", maxlength: 200, required: block.kind == "carousel", aria: { describedby: "alt-help" } %>
+    <p id="alt-help" class="mt-1 text-xs text-base-content/70">
+      Read out to people who can't see the image. <%= "If left blank, the card's title is used." if block.kind == "cards" %>
+    </p>
+  </div>
+
+  <% if block.kind == "cards" %>
+    <div>
+      <%= form.label :link_label, "Button text", class: "label font-medium" %>
+      <%= form.text_field :link_label, class: "input input-bordered w-full", maxlength: 40, placeholder: BlockItem::DEFAULT_BUTTON %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :link_url, block.kind == "cards" ? "Link to another address (optional)" : "Link address (optional)", class: "label font-medium" %>
+    <%= form.text_field :link_url, class: "input input-bordered w-full font-mono text-sm", placeholder: "https://… or /content/my-page",
+                        inputmode: "url", aria: { describedby: "link-help" } %>
+    <p id="link-help" class="mt-1 text-xs text-base-content/70">
+      A full address, or a page on this site starting with <code>/</code>.
+      <%= "Replaces the featured page's address." if block.kind == "cards" %>
+    </p>
+  </div>
+
+  <div class="flex gap-2">
+    <%= form.submit item.new_record? ? "Add #{block.item_name}" : "Save #{block.item_name}", class: "btn btn-primary" %>
+    <%= link_to "Cancel", edit_admin_block_path(block), class: "btn btn-ghost" %>
+  </div>
+<% end %>

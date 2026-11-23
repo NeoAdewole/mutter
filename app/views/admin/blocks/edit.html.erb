@@ -1,0 +1,20 @@
+<div class="my-6 max-w-3xl">
+  <%= link_to "← Back to #{@block.page.title}", edit_admin_page_path(@block.page), class: "link link-hover text-sm" %>
+  <h1 class="mt-2 text-3xl font-bold">Edit <%= @block.label.downcase %></h1>
+  <p class="mt-1 text-sm text-base-content/70"><%= PageBlock::KINDS.fetch(@block.kind)[:help] %></p>
+
+  <%= form_with model: @block, url: admin_block_path(@block), method: :patch, class: "mt-4 flex flex-col gap-4" do |form| %>
+    <%= render "admin/shared/form_errors", record: @block, heading: "This block couldn't be saved:" %>
+
+    <%= render "admin/blocks/fields_#{@block.kind}", form: form %>
+
+    <div class="flex gap-2">
+      <%= form.submit "Save #{@block.label.downcase}", class: "btn btn-primary" %>
+      <%= link_to "Done", edit_admin_page_path(@block.page), class: "btn btn-ghost" %>
+    </div>
+  <% end %>
+
+  <% if @block.holds_items? %>
+    <%= render "admin/blocks/items", block: @block %>
+  <% end %>
+</div>

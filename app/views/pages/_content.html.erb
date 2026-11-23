@@ -1,0 +1,21 @@
+<%# What every page shows: optional title, main text, then its blocks in order. Locals: page, and
+    optionally `actions` (extra admin buttons, as HTML). The text is kept to a readable width;
+    carousels and rows of cards use the full width. %>
+<% if page.show_title? || page.body.present? || admin_signed_in? %>
+  <div class="max-w-3xl">
+    <% if page.show_title? %>
+      <h1 class="text-3xl font-bold"><%= page.title %></h1>
+    <% end %>
+    <% if admin_signed_in? %>
+      <div class="flex flex-wrap gap-2 <%= 'mt-3' if page.show_title? %>">
+        <%= link_to "Edit this page", edit_admin_page_path(page), class: "btn btn-sm btn-outline" %>
+        <%= local_assigns[:actions] %>
+      </div>
+    <% end %>
+    <% if page.body.present? %>
+      <div class="cms-body mt-6"><%= page.rendered_body %></div>
+    <% end %>
+  </div>
+<% end %>
+
+<%= render "pages/blocks", page: page %>

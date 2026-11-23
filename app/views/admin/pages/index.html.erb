@@ -4,6 +4,43 @@
     Manage the pages in each section. Drafts are only visible to admins; publish a page to put it in the menu.
   </p>
 
+  <section class="mt-8" aria-labelledby="site-pages-heading" data-site-pages>
+    <h2 id="site-pages-heading" class="text-xl font-semibold">Site pages</h2>
+    <p class="mt-1 text-xs text-base-content/70">
+      Home, About and each section's landing page. Edit their text and add carousels, rows of cards and more;
+      they always stay published and can't be moved or deleted.
+    </p>
+    <div class="mt-2 overflow-x-auto">
+      <table class="table table-sm">
+        <caption class="sr-only">Site pages</caption>
+        <thead>
+          <tr>
+            <th scope="col">Page</th>
+            <th scope="col" class="hidden tablet:table-cell">Blocks</th>
+            <th scope="col" class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @site_pages.each do |site_page| %>
+            <tr data-site-page="<%= site_page.system_key %>">
+              <td>
+                <span class="font-medium" data-title><%= site_page.title %></span>
+                <span class="block break-all text-xs text-base-content/60"><%= site_page.public_path %></span>
+              </td>
+              <td class="hidden tablet:table-cell"><%= site_page.blocks.size %></td>
+              <td>
+                <div class="flex flex-wrap items-center justify-end gap-1">
+                  <%= link_to "View", site_page.public_path, class: "btn btn-xs btn-ghost", aria: { label: "View #{site_page.title}" } %>
+                  <%= link_to "Edit", edit_admin_page_path(site_page), class: "btn btn-xs btn-outline", aria: { label: "Edit #{site_page.title}" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <% @rows_by_section.each do |section, rows| %>
     <section class="mt-8" aria-labelledby="section-<%= section.key %>">
       <div class="flex flex-wrap items-center gap-2">

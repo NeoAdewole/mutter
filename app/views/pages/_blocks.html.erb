@@ -1,0 +1,4 @@
+<%# A page's blocks, in order. Locals: page. Each kind has its own partial in pages/blocks/. %>
+<% blocks_for(page).each do |block| %>
+  <%= render partial: "pages/blocks/#{block.kind}", locals: { block: block } %>
+<% end %>

@@ -1,0 +1,7 @@
+<% streams = carousel_streams(block) %>
+<% slides = carousel_slides(block) %>
+<% if streams.any? || slides.any? %>
+  <div class="relative my-4" data-block="carousel">
+    <%= render "shared/carousel", streams: streams, slides: slides %>
+  </div>
+<% end %>

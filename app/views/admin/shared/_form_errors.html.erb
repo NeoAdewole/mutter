@@ -1,0 +1,13 @@
+<%# The error summary at the top of an admin form. Locals: record, heading. %>
+<% if record.errors.any? %>
+  <div class="alert alert-error" role="alert" data-form-errors>
+    <div>
+      <p class="font-semibold"><%= heading %></p>
+      <ul class="list-disc pl-5">
+        <% record.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>

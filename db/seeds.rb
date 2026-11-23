@@ -13,3 +13,6 @@ User.create!([
                { email: 'test@tester.com', password_digest: '$2a$12$.09q0TaFul54FN1hOmM5JeJbrlKb4OnqFvhiWt6Yoy5R2IISCpW9K',
                  firstname: 'Testy', lastname: 'Testington', username: 'TryoutKings' }
              ])
+
+# Home, About and the section landing pages (idempotent; they are also created on first use).
+SitePages.ensure!
