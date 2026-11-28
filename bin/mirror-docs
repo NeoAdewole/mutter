@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Copies the files a new session needs for context (CLAUDE.md, docs/, the project skills and the
+# check script) from this repository to a folder that syncs to another computer.
+# One way: the repository is the source of truth, so edit it there and run this again.
+# Never copies code, credentials, master.key, .env files or anything else.
+#
+#   bin/mirror-docs                      # to the default OneDrive folder
+#   MUTTER_MIRROR_DIR=/some/folder bin/mirror-docs
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+dest="${MUTTER_MIRROR_DIR:-/mnt/c/Users/matta/OneDrive/Documents/Claude/Projects/Mutter project/repo-mirror}"
+mkdir -p "$dest"
+
+# -rt, not -a: the shared folder is on Windows, which has no Unix owners or modes to keep.
+rsync -rt --delete --prune-empty-dirs \
+  --include='CLAUDE.md' \
+  --include='docs/' --include='docs/***' \
+  --include='.claude/' --include='.claude/skills/' --include='.claude/skills/***' \
+  --include='bin/' --include='bin/check' --include='bin/mirror-docs' \
+  --exclude='*' \
+  ./ "$dest/"
+
+echo "Mirrored to: $dest"
+( cd "$dest" && find . -type f ! -name 'README*' | sort )

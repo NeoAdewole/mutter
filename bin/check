@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Everything CI runs, in the order that fails fastest: rubocop, then the specs.
+# Pass spec paths to run only those: bin/check spec/requests/admin_pages_spec.rb
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+echo "== rubocop"
+bundle exec rubocop
+
+echo "== rspec"
+bundle exec rspec "$@"
