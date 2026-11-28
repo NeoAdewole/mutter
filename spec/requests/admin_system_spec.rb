@@ -28,17 +28,17 @@ RSpec.describe 'Admin system page', type: :request do
   end
 
   it 'says whether each sign-in provider has credentials, and never prints them' do
-    allow(Rails.application.credentials).to receive(:dig).and_call_original
-    allow(Rails.application.credentials).to receive(:dig).with(:github, :client_id).and_return('gh-id-VISIBLE?')
-    allow(Rails.application.credentials).to receive(:dig).with(:github, :client_secret).and_return('gh-secret-VISIBLE?')
-    allow(Rails.application.credentials).to receive(:dig).with(:discord, :client_id).and_return('only-an-id')
-    allow(Rails.application.credentials).to receive(:dig).with(:discord, :client_secret).and_return(nil)
+    values = { %w[github client_id] => 'gh-id-VISIBLE?', %w[github client_secret] => 'gh-secret-VISIBLE?',
+               %w[discord client_id] => 'only-an-id' }
+    allow(AuthProviders).to receive(:credential) { |provider, name| values[[provider.key, name.to_s]] }
 
     get admin_system_path
 
     rows = html.css('[data-providers] tbody tr').to_h { |row| [row.at_css('td').text.strip, row.text] }
+    expect(rows.keys).to eq(%w[GitHub Twitter Google Twitch Discord YouTube])
     expect(rows['GitHub']).to include('Configured')
     expect(rows['Discord']).to include('Missing')
+    expect(rows['Google']).to include('Missing')
     expect(response.body).not_to include('VISIBLE')
     expect(response.body).not_to include('only-an-id')
   end

@@ -11,6 +11,8 @@ Rails.application.routes.draw do
 
   match '/auth/:provider/callback', to: 'sessions#create', via: %i[get post]
   get '/auth/failure', to: 'omniauth_callbacks#failure'
+  # OmniAuth answers /auth/<provider> itself for every provider with credentials; this catches the rest.
+  match '/auth/:provider', to: 'omniauth_callbacks#unavailable', via: %i[get post], constraints: { provider: /[a-z0-9_]+/ }
 
   resource :session
   resource :registration

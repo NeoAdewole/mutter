@@ -30,13 +30,7 @@ module Admin
     end
 
     def providers
-      @providers ||= [
-        provider('GitHub', credentials.dig(:github, :client_id), credentials.dig(:github, :client_secret)),
-        provider('Google (sign-in and YouTube)', credentials.dig(:google, :client_id), credentials.dig(:google, :client_secret)),
-        provider('Twitter', credentials.dig(:twitter, :client_id), credentials.dig(:twitter, :client_secret)),
-        provider('Discord', credentials.dig(:discord, :client_id), credentials.dig(:discord, :client_secret)),
-        twitch_provider
-      ]
+      @providers ||= AuthProviders.all.map { |provider| Provider.new(provider.label, provider.configured?) }
     end
 
     def record_counts
@@ -50,21 +44,6 @@ module Admin
     end
 
     private
-
-    def credentials
-      Rails.application.credentials
-    end
-
-    def provider(label, id, secret)
-      Provider.new(label, id.present? && secret.present?)
-    end
-
-    # Twitch credentials are stored flat or nested; the same lookup the sign-in and live-stream code use.
-    def twitch_provider
-      id = credentials.dig(:twitch, :client_id) || credentials[:twitch_client_id]
-      secret = credentials.dig(:twitch, :client_secret) || credentials[:twitch_client_secret]
-      Provider.new('Twitch (sign-in and live streams)', id.present? && secret.present?)
-    end
 
     def pending_migrations?
       ActiveRecord::Base.connection_pool.migration_context.needs_migration?

@@ -102,8 +102,20 @@ RSpec.describe Twitch::Client do
   end
 
   describe '.from_credentials' do
+    it 'builds a client from environment variables' do
+      allow(described_class).to receive(:from_credentials).and_call_original # specs stub it out globally
+
+      client = described_class.from_credentials # rails_helper sets throwaway TWITCH_CLIENT_ID / _SECRET
+
+      expect(client).to be_a(described_class)
+      expect(client.send(:client_id)).to eq('test-twitch-id')
+    end
+
     it 'builds a client from flat or nested credentials, and is nil when none are configured' do
       allow(described_class).to receive(:from_credentials).and_call_original # specs stub it out globally
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with('TWITCH_CLIENT_ID', nil).and_return(nil)
+      allow(ENV).to receive(:fetch).with('TWITCH_CLIENT_SECRET', nil).and_return(nil)
       credentials = double('credentials') # EncryptedConfiguration delegates #dig dynamically, so it can't be verified
       allow(Rails.application).to receive(:credentials).and_return(credentials)
 

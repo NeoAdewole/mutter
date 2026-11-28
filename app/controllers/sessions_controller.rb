@@ -12,6 +12,9 @@ class SessionsController < ApplicationController
       handle_password_login
     elsif request.env['omniauth.auth']
       connecting_provider? ? handle_provider_connection : handle_omniauth_login
+    else
+      # A callback address with nothing behind it (a provider that is not set up, or a replayed link).
+      redirect_to new_session_path, alert: 'Sign in could not be completed. Please try again.'
     end
   end
 
@@ -50,7 +53,8 @@ class SessionsController < ApplicationController
     login(user)
     provider_name = Identity.label_for(auth.provider)
 
-    if auth.info.email.blank?
+    # Asked until they give a real address (Twitter never sends one), then not again on later sign-ins.
+    if user.placeholder_email?
       redirect_to edit_registration_path,
                   notice: "Signed in with #{provider_name}. Please add an email address to finish setting up your account."
     elsif newly_created

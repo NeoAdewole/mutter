@@ -20,13 +20,11 @@ module Twitch
       @token_cache ||= ActiveSupport::Cache::MemoryStore.new(size: 64.kilobytes)
     end
 
-    # Twitch's credentials are stored flat (twitch_client_id / twitch_client_secret);
-    # the nested form used by the other providers is also honored.
+    # The same Twitch app that signs people in (see AuthProviders): environment variables,
+    # nested credentials or flat ones (twitch_client_id / twitch_client_secret).
     def self.from_credentials
-      credentials = Rails.application.credentials
-      id = credentials.dig(:twitch, :client_id) || credentials[:twitch_client_id]
-      secret = credentials.dig(:twitch, :client_secret) || credentials[:twitch_client_secret]
-      new(client_id: id, client_secret: secret) if id.present? && secret.present?
+      provider = AuthProviders.find('twitch')
+      new(client_id: provider.client_id, client_secret: provider.client_secret) if provider.configured?
     end
 
     def initialize(client_id:, client_secret:)

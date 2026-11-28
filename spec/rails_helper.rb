@@ -1,6 +1,13 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
+# Every provider is "set up" with throwaway values, so the whole sign-in flow can be exercised and the
+# specs behave the same on a machine that has real credentials and in CI that has none.
+# (OmniAuth runs in test mode: nothing here is ever sent to a provider.)
+%w[GITHUB TWITTER GOOGLE TWITCH DISCORD].each do |name|
+  ENV["#{name}_CLIENT_ID"] = "test-#{name.downcase}-id"
+  ENV["#{name}_CLIENT_SECRET"] = "test-#{name.downcase}-secret"
+end
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?

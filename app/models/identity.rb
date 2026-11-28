@@ -37,6 +37,11 @@ class Identity < ApplicationRecord
     PROVIDER_LABELS.fetch(provider.to_s) { provider.to_s.titleize }
   end
 
+  # Connect-only services (YouTube) are never a way to sign in.
+  def connect_only?
+    CONNECT_ONLY_PROVIDERS.include?(provider)
+  end
+
   # This person's page on the service itself (their handle there, which may
   # differ from their handle elsewhere and from their Mutter username).
   def profile_url

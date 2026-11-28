@@ -1,13 +1,11 @@
 module ApplicationHelper
-  # Single source of truth for which OmniAuth identity providers exist as
-  # buttons, so the sessions and registrations views (and any future ones)
-  # can't drift out of sync with config/initializers/omniauth.rb. Display
-  # names live on Identity (Identity.label_for).
-  IDENTITY_PROVIDER_KEYS = %w[github twitter2 google_oauth2 twitch discord youtube].freeze
-
+  # Single source of truth for which identity providers are offered as buttons,
+  # so the sessions and registrations views can't drift out of sync with
+  # config/initializers/omniauth.rb: both read AuthProviders. A provider with
+  # no credentials is not registered, so it is not offered either.
   # Every provider that can be connected from the profile page.
   def identity_providers
-    providers = IDENTITY_PROVIDER_KEYS.map { |key| { key: key, label: Identity.label_for(key) } }
+    providers = AuthProviders.configured.map { |provider| { key: provider.key, label: provider.label } }
 
     # The developer strategy needs no real credentials, so it's how this app
     # is signed in/up with in development and exercised in specs.
